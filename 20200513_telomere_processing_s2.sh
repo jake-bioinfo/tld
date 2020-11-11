@@ -84,8 +84,8 @@ if [[ "${ck_tFa}" == 3 ]]; then
 	ns_fa=$( ls ${out} | egrep -v "${ss_fa_prefix}" | egrep "fasta" | egrep -v "lenStat" | egrep -v "slide.fa" )
 	echo -e "\n\tThe nonsampled file: ${ns_fa}\n" 
 	
-	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ss_fa} | cut -f2 | r_fasta_basicStats.r > ${out}/${ss_fa}.lenStats
-	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ns_fa} | cut -f2 | r_fasta_basicStats.r > ${out}/${ns_fa}.lenStats
+	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ss_fa} | cut -f2 | ${TMP}/bin/r_fasta_basicStats.r > ${out}/${ss_fa}.lenStats
+	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ns_fa} | cut -f2 | ${TMP}/bin/r_fasta_basicStats.r > ${out}/${ns_fa}.lenStats
 
 	ss_medl=$( cat ${out}/${ss_fa}.lenStats | egrep "median" | cut -d' ' -f 3 | awk '{print int($1+0.5)}' )
 	ns_medl=$( cat ${out}/${ns_fa}.lenStats | egrep "median" | cut -d' ' -f 3 | awk '{print int($1+0.5)}' )
@@ -129,7 +129,7 @@ if [[ ! -z "${win_sz}" && ! -z "${win_st}" ]]; then
 
 	echo -e "\nWindow size and window step were found, starting sliding window.\n" 
 	echo -e "${out}/${ss_fa}\n${out}/${ns_fa}" > ${TMP}/slide.fofn
-	parallel -k -j 4 sliding_window.py -i {} -o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
+	parallel -k -j 4 ${TMP}/bin/sliding_window.py -i {} -o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
 else
 
 	echo -e "\nWindow size and window step were not found, exiting.\n"; exit 1
@@ -144,7 +144,7 @@ if (( "${ck_tmp_f}" < 50000 )); then
 
 		echo -e "\nBoth slide files found, starting to parse files.\n"
 		ls ${out} | egrep "slide" > ${TMP}/split.fofn
-		parallel -k -j 8 split_fasta.sh -i ${out}/{} -o ${t_dir} :::: ${TMP}/split.fofn
+		parallel -k -j 8 ${TMP}/bin/split_fasta.sh -i ${out}/{} -o ${t_dir} :::: ${TMP}/split.fofn
 
 	else
 
@@ -165,7 +165,7 @@ combine_ln=$( expr ${f1ln} + ${f2ln} )
 if [[ "${file_num}" == "${combine_ln}" ]]; then
 	echo -e "\nCorrect number of files found. Starting to count telomere percents."
 	ls ${t_dir} | egrep "*.fa" > ${TMP}/fa.fofn
-	parallel -k -j 64 ct_telo.sh -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
+	parallel -k -j 64 ${TMP}/bin/ct_telo.sh -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
 else 
 	echo -e "\nCorrect number of files not found. Exiting."
 	exit 1

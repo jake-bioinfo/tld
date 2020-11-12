@@ -12,7 +12,7 @@ suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(plyr))
 
 # Sourcing useful functions
-source("~/rscripts/telo_modules/fxns/def_plotting.R")
+source("/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/def_plotting.R")
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,

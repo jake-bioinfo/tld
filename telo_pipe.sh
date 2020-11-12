@@ -11,7 +11,8 @@ bf=''
 med=''
 t=''
 
-bin_path=~/rscripts/telo_modules/bin/
+cur_dir=`pwd`
+bin_path=${cur_dir}/bin/
 
 # Set help dialog
 help_inf="

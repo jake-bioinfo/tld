@@ -11,8 +11,8 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(doParallel))
 
 # Sourcing useful functions
-source('~/rscripts/telo_modules/fxns/end_bam_chr.R')
-source('~/rscripts/telo_modules/fxns/stopQuietly.R')
+source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/end_bam_chr.R')
+source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE, 

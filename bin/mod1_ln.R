@@ -10,9 +10,9 @@ suppressPackageStartupMessages(library(foreach))
 suppressPackageStartupMessages(library(doParallel))
 
 # Sourcing useful functions
-source('~/rscripts_tmp/R/telo_modules/fxns/modes.R')
-source('~/rscripts_tmp/R/telo_modules/fxns/ddply_thresh.R')
-source('~/rscripts_tmp/R/telo_modules/fxns/stopQuietly.R')
+source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/modes.R')
+source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/ddply_thresh.R')
+source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
@@ -193,9 +193,6 @@ for (et in 5:95) {
   s.result.df <- rbind(s.result.df.tmp, s.result.df)
 }
 cat("\nAll threshold processing completed.\n")
-
-cat("\nThis is s.result.df:\n")
-print(s.result.df)
 
 # Producing end threshold data frame to determine end threshold
 et.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],

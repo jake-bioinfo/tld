@@ -10,8 +10,8 @@ suppressPackageStartupMessages(library(Biostrings))
 suppressPackageStartupMessages(library(doParallel))
 
 # Import custom functions
-source('~/rscripts/telo_modules/fxns/truncation.R')
-source('~/rscripts/telo_modules/fxns/stopQuietly.R')
+source('~/pfalci/201908_telomere_lengths/github/tld/fxns/truncation.R')
+source('~/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE, 

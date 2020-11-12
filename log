@@ -1,0 +1,73 @@
+
+These are the variables:
+        
+
+        Directory for telomere table results: /home/jaker/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables/
+
+	Telomere CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables/200sw_telomere_ranges.perc.sorted.csv
+
+	Input non-sample fasta: /home/jaker/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables//output/irr_2s.telo.fasta
+
+	Input sampled fasta: /home/jaker/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables//output/3d7_2s.sample.telo.fasta        
+
+	Prefix: 202011
+
+        Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
+
+        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_s2_telo/
+
+        Sample names: s2_wt,s2_irr
+
+	Median values for normalization: 8491,7638
+
+	Number of threads: 6
+
+	Bin path: /home/jaker/pfalci/201908_telomere_lengths/github/tld/bin/
+
+        
+        
+
+Result directory exists, continuing
+
+
+Starting telomere length assessment at Thu Nov 12 05:17:23 PM EST 2020
+
+
+Starting to process telomere reads at: 2020-11-12 17:17:24
+
+ These are the options you submitted: 
+ 	Input CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables/200sw_telomere_ranges.perc.sorted.csv 
+ 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_s2_telo/ 
+ 	File prefix: 202011 
+ 	Median list: 8491,7638 
+ 	Sample list: s2_wt,s2_irr 
+ 	Processors: 6 
+ Are these correct? (y/n) 
+
+Options have been confirmed, continuing... 
+
+Samples need to be renamed, looping over unique samples. 
+*Letters and #s only. 
+*Samples need to be in same order as median values submitted
+Current sample: >3d7_2s 
+New name: s2_wt
+Current sample: >irr_2s 
+New name: s2_irr
+
+Are these correct (y/n)
+ Samples names are correct, continuing... 
+ Number of median values matches number of samples, continuing... 
+
+Assigning sample: s2_wt 
+	 Median value: 8491 
+Is this correct (y/n)?
+	 Correct median match, continuing... 
+
+
+Assigning sample: s2_irr 
+	 Median value: 7638 
+Is this correct (y/n)?
+	 Correct median match, continuing... 
+
+
+Starting subsampling for all threshold processing.

@@ -1,18 +1,24 @@
 #!/usr/bin/env Rscript
+## Make changes from mod1_ln_tmp as option for ont data!!
 # Import libraries
-suppressPackageStartupMessages(library("optparse"))                                
-suppressPackageStartupMessages(library("stats"))
+suppressPackageStartupMessages(require("optparse"))                                
+suppressPackageStartupMessages(require("stats"))
 
-suppressPackageStartupMessages(library(plyr))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(foreach))
-suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(require(plyr))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(parallel))
+suppressPackageStartupMessages(require(foreach))
+suppressPackageStartupMessages(require(doParallel))
 
 # Sourcing useful functions
-source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/modes.R')
-source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/ddply_thresh.R')
-source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
+source('/tld/fxns/modes.R')
+source('/tld/fxns/ddply_thresh.R')
+source('/tld/fxns/stopQuietly.R')
+
+# source('~/tmp/docker/test_data/tld/fxns/modes.R')
+# source('~/tmp/docker/test_data/tld/fxns/ddply_thresh.R')
+# source('~/tmp/docker/test_data/tld/fxns/stopQuietly.R')
+
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
@@ -28,6 +34,8 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
                                 help = "full path to folder where results should be stored"),
                     make_option(c("-p", "--prefix"), type = "character",
                                 help = "prefix for output filenames"),
+                    make_option(c("-f", "--platform"), type = "character",
+                                help = "sequencing platform"),
                     make_option(c("-t", "--threads"), type = "integer",
                                 help = "number of processors to allocate, DEFAULT=max-2"),
                     make_option(c("-m", "--median_values"), type = "character",
@@ -46,6 +54,15 @@ if ( opt$verbose ) {
               Sys.time(), collapse = ""), stderr())
 }
 
+# opt <- list()
+# opt$in_csv <- '~/tmp/docker/test_data/tld/data/w_dir/200sw_telomere_ranges.perc.sorted.csv'
+# opt$out_path <- '~/tmp/docker/test_data/tld/data/o_dir'
+# opt$prefix <- 'dockTest'
+# opt$median_values <- '1,1'
+# opt$rename_samples <- 'Spara,Scere'
+# opt$platform <- 'pb'
+# opt$threads <- 7
+
 # Determining number of threads
 if ( is.null(opt$threads) ) {
   cat("\nNumber of parallel processors automatically set to max-2.\n")
@@ -61,6 +78,7 @@ cat("\n These are the options you submitted: \n",
     paste("\tFile prefix:", opt$prefix, collapse = ""), "\n",
     paste("\tMedian list:", opt$median_values, collapse = ""), "\n",
     paste("\tSample list:", opt$rename_samples, collapse = ""), "\n",
+    paste("\tSequencing platform:", opt$platform, collapse = ""), "\n",
     paste("\tProcessors:", noCores, collapse = ""), "\n",
     paste("Are these correct? (y/n)", collapse = ""), "\n"
 )
@@ -138,6 +156,7 @@ for (i in 1:length(unique(df$s.name))) {
   cat(paste("\nAssigning sample:", unique(df$s.name)[i],
             "\n\t Median value:", med_vec[[1]][i],
             "\nIs this correct (y/n)?", collapse = ""))
+ #df$read.median[df$s.name==unique(df$s.name)[i]] <- med_vec[[1]][i]
   
   # Check that median values are being assigned to correct sample
   nm_lp_ch <- readLines(con = "stdin", n = 1)
@@ -148,7 +167,6 @@ for (i in 1:length(unique(df$s.name))) {
     cat("\n\t Incorrect median match, exiting.\n\n")
     q(save = "no", status = 4, runLast = FALSE)
   }
-  
 }
 
 # Convert median to numeric
@@ -159,134 +177,228 @@ df$r.name <- gsub(pattern = "seqRng.*", replacement = "", x = df$r.name)
 read_count <- ddply(df,.(s.name, r.type, s.win), summarize, 
                     reads.before.Tlen=length(unique(r.name)))
 
-# Setup parallel environment
-cl <- makeCluster(noCores)
-registerDoParallel()
-
-# Downsample number of reads
-df_sr <- sample(unique(df$r.name), 500)
-df_s <- data.frame()
-
-function_g <- function(df, int, df_sr) {
-  df_s_tmp <- df[grep(df_sr[int], df$r.name), ]
-  return(df_s_tmp)
-}
-
-cat("\nStarting subsampling for all threshold processing.\n")
-df_s <- foreach(s=1:length(df_sr), .combine = rbind) %dopar% {
-  df_s_tmp <- function_g(df, s, df_sr)
-  df_s_tmp
-}
-cat("\nSubsampling completed.\n")
-
-# Create data frame from 500 downsampled reads to determine threshold to use 
-# going forward
-
-cat("\nStarting processing of all thresholds for threshold determination.\n")
-s.result.df <- data.frame()
-for (et in 5:95) {
-  cat("\n\tProcessing all start thresholds for end threshold:", et)
-  s.result.df.tmp <- foreach(st=5:95, .combine=rbind) %dopar% {
-    tmp.result <- ddply_thresh(df_s, et, st)
-    tmp.result
-  }
-  s.result.df <- rbind(s.result.df.tmp, s.result.df)
-}
-cat("\nAll threshold processing completed.\n")
-
-# Producing end threshold data frame to determine end threshold
-et.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
-               .(s.name, e.thresh, s.thresh), summarize,
-               tel.ln.mean=mean(tel.length), .parallel = TRUE)
-
-# Subset in order to determine asymptote, convert data to numeric
-ets.df <- et.df[et.df$s.thresh==50&et.df$s.name==unique(s.result.df$s.name)[1], ]
-ets.df$e.thresh <- as.numeric(ets.df$e.thresh)
-
-# Producing start threshold data frame to determine start threshold
-st.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
-               .(s.name, s.thresh, e.thresh), summarize,
-               r.per.st=length(unique(r.name)), .parallel = TRUE)
-
-# Subset start threshold data frame in order to determine max
-sts.df <- st.df[st.df$e.thresh==50&st.df$s.name==unique(s.result.df$s.name)[1], ]
-sts.df$r.per.st <- as.numeric(sts.df$r.per.st)
-
-# Determine asymptote of end threshold and max of start threshold
-# subsets
-
-# For loop for ets.df to determine horizontal asymptote
-et.res.vec <- vector()
-for (et in 5:95) {
-  #cat("\nThis is step:", et)
+# Wrap theshold determiniation in if statement if platform is pacbio
+if (opt$platform == "pb") { 
   
-  if(et==5){
-    #cat("\n\tThis is first step continuing without calculation")
-  } else {
-    
-    p.et <- et -1
-    #cat("\n\tThis is previous end threshold:", p.et)
-    p.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==p.et]
-    #cat("\n\tThis is previous telomere length:", p.tl)
-    
-    t.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==et]
-    #cat("\n\tThis is tmp.tl:", t.tl)
-    
-    diff <- p.tl - t.tl
-    #cat("\n\tThis is difference:", diff)
-    
-    per.diff <- diff/median(ets.df$tel.ln.mean)
-    #cat("\n\tThis is percent difference of current length:", per.diff)
-    
-    if(per.diff > 0.002 | per.diff < 0 ) {
-      #cat("\n\tPercent difference is greather than 0.2% or negative, continuing.")
-    } else {
-      #cat("\n\tPercent difference is less than 0.2%, adding to vec")
-      et.res.vec <- c(et.res.vec, et)
+  # Setup parallel environment
+  cl <- makeCluster(noCores)
+  registerDoParallel()
+  
+  # Downsample number of reads
+  sample_size <- round((0.15 * (length(unique(df$r.name)))), digits = -1)
+  df_sr <- sample(unique(df$r.name), sample_size)
+  df_s <- data.frame()
+  
+  function_g <- function(df, int, df_sr) {
+    df_s_tmp <- df[grep(df_sr[int], df$r.name), ]
+    return(df_s_tmp)
+  }
+  
+  cat("\nStarting subsampling for all threshold processing.\n")
+  df_s <- foreach(s=1:length(df_sr), .combine = rbind) %dopar% {
+    df_s_tmp <- function_g(df, s, df_sr)
+    df_s_tmp
+  }
+  cat("\nSubsampling completed.\n")
+  
+  # Create data frame from 1000 downsampled reads to determine threshold to use 
+  # going forward
+  # Create different test data frames for ont and pb bc ont data has messier 
+  # telomeres and often does not meet the criteria at lower and higher end 
+  # thresholds
+  et.s <- 5
+  st.s <- 5
+  et.e <- 85
+  st.e <- 85
+  
+  # Add total for progress bar 
+  total <- et.e
+  
+  # create progress bar
+  pb <- txtProgressBar(min = et.s, max = total, styl = 3)
+  
+  cat("\nStarting to process all thresholds for threshold determination.\n")
+  s.result.df <- data.frame()
+  for (et in et.s:et.e) {
+    setTxtProgressBar(pb, et)  
+    s.result.df.tmp <- foreach(st=st.s:st.e, .combine=rbind) %dopar% {
+      tmp.result <- ddply_thresh(df_s, et, st)
+      tmp.result
+    }
+    s.result.df <- rbind(s.result.df.tmp, s.result.df)
+  }
+  close(pb)
+  cat("\nAll threshold processing completed.\n")
+  
+  # Producing end threshold data frame to determine end threshold
+  et.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
+                 .(s.name, e.thresh, s.thresh), summarize,
+                 tel.ln.mean=mean(tel.length), .parallel = TRUE)
+  
+  # Subset in order to determine asymptote, convert data to numeric
+  ets.df <- et.df[et.df$s.thresh==50&et.df$s.name==unique(s.result.df$s.name)[1], ]
+  ets.df$e.thresh <- as.numeric(ets.df$e.thresh)
+  
+  # Producing start threshold data frame to determine start threshold
+  st.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
+                 .(s.name, s.thresh, e.thresh), summarize,
+                 r.per.st=length(unique(r.name)), .parallel = TRUE)
+  
+  # Subset start threshold data frame in order to determine max
+  sts.df <- st.df[st.df$e.thresh==50&st.df$s.name==unique(s.result.df$s.name)[1], ]
+  sts.df$r.per.st <- as.numeric(sts.df$r.per.st)
+  
+  # Determine asymptote of end threshold and max of start threshold
+  # subsets
+  # If reads are ccs reads then find vertical asymptote values
+  x <- grepl("ccs", head(df$r.name, 1))
+  if ( x ) {
+    et.res.vec <- vector()
+    for (et in et.s:et.e) {
+      #cat("\nThis is step:", et)
+      
+      if(et==et.s){
+        #cat("\n\tThis is first step continuing without calculation")
+      } else {
+        
+        p.et <- et -1
+        #cat("\n\tThis is previous end threshold:", p.et)
+        p.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==p.et]
+        #cat("\n\tThis is previous telomere length:", p.tl)
+        
+        t.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==et]
+        #cat("\n\tThis is tmp.tl:", t.tl)
+        
+        diff <- p.tl - t.tl
+        #cat("\n\tThis is difference:", diff)
+        
+        per.diff <- diff/median(ets.df$tel.ln.mean)
+        #cat("\n\tThis is percent difference of current length:", per.diff)
+        
+        if( per.diff > 0.006 ) {
+          #cat("\n\tPercent difference is greather than 0.6%, adding to result vector.")
+          et.res.vec <- c(et.res.vec, et)
+        } 
+      }
+    }
+    # For loop for sts.df for ccs reads to determine vertical asymptote
+    st.res.vec <- vector()
+    for (st in st.s:st.e) {
+      #cat("\nThis is step:", st)
+      
+      if(st==st.s){
+        #cat("\n\tThis is first step continuing without calculation")
+      } else {
+        
+        p.st <- st - 1
+        #cat("\n\tThis is previous start threshold:", p.st)
+        pr.n <- sts.df$r.per.st[sts.df$s.thresh==p.st]
+        #cat("\n\tThis is previous read number:", pr.n)
+        
+        t.rn <- sts.df$r.per.st[sts.df$s.thresh==st]
+        #cat("\n\tThis is temporary read number:", t.rn)
+        
+        diff <- pr.n - t.rn
+        #cat("\n\tThis is difference:", diff)
+        
+        per.diff <- diff/median(sts.df$r.per.st)
+        #cat("\n\tThis is percent difference of current length:", per.diff)
+        
+        if( per.diff > 0.006 ) {
+          #cat("\n\tPercent difference is greater than 0.6%, adding to result vector.")
+          st.res.vec <- c(st.res.vec, st)
+        }
+        
+      }
     }
     
-  }
-}
-
-# Determine median value for horizontal asymptote and use as end threshold
-end.threshold <- round(median(et.res.vec))
-
-# For loop for sts.df to determine horizontal asymptote
-st.res.vec <- vector()
-for (st in 5:95) {
-  #cat("\nThis is step:", st)
-  
-  if(st==5){
-    #cat("\n\tThis is first step continuing without calculation")
   } else {
+  
+  # For loop for ets.df to determine horizontal asymptote
+  et.res.vec <- vector()
+  for (et in et.s:et.e) {
+    #cat("\nThis is step:", et)
     
-    p.st <- st -1
-    #cat("\n\tThis is previous start threshold:", p.st)
-    pr.n <- sts.df$r.per.st[sts.df$s.thresh==p.st]
-    #cat("\n\tThis is previous read number:", pr.n)
-    
-    t.rn <- sts.df$r.per.st[sts.df$s.thresh==st]
-    #cat("\n\tThis is temporary read number:", t.rn)
-    
-    diff <- pr.n - t.rn
-    #cat("\n\tThis is difference:", -diff)
-    
-    per.diff <- -diff/median(sts.df$r.per.st)
-    #cat("\n\tThis is percent difference of current length:", per.diff)
-    
-    if(per.diff > 0.006 | per.diff < 0 ) {
-      #cat("\n\tPercent difference is greather than 0.6% or negative, continuing.")
+    if(et==et.s){
+      #cat("\n\tThis is first step continuing without calculation")
     } else {
-      #cat("\n\tPercent difference is less than 0.6%, adding to vec")
-      st.res.vec <- c(st.res.vec, st)
+      
+      p.et <- et -1
+      #cat("\n\tThis is previous end threshold:", p.et)
+      p.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==p.et]
+      #cat("\n\tThis is previous telomere length:", p.tl)
+      
+      t.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==et]
+      #cat("\n\tThis is tmp.tl:", t.tl)
+      
+      diff <- p.tl - t.tl
+      #cat("\n\tThis is difference:", diff)
+      
+      per.diff <- diff/median(ets.df$tel.ln.mean)
+      #cat("\n\tThis is percent difference of current length:", per.diff)
+        
+      if( per.diff > 0.002 | per.diff <= 0 ) {
+        #cat("\n\tPercent difference is greather than 0.2% or negative, continuing.")
+      } else {
+        #cat("\n\tPercent difference is less than 0.2%, adding to vec")
+        et.res.vec <- c(et.res.vec, et)
+      }
+      
     }
+  } 
+  
+  # For loop for sts.df to determine horizontal asymptote
+  st.res.vec <- vector()
+  for (st in st.s:st.e) {
+    #cat("\nThis is step:", st)
     
+    if(st==st.s){
+      #cat("\n\tThis is first step continuing without calculation")
+    } else {
+      
+      p.st <- st - 1
+      #cat("\n\tThis is previous start threshold:", p.st)
+      pr.n <- sts.df$r.per.st[sts.df$s.thresh==p.st]
+      #cat("\n\tThis is previous read number:", pr.n)
+      
+      t.rn <- sts.df$r.per.st[sts.df$s.thresh==st]
+      #cat("\n\tThis is temporary read number:", t.rn)
+      
+      diff <- pr.n - t.rn
+      #cat("\n\tThis is difference:", -diff)
+      
+      per.diff <- -diff/median(sts.df$r.per.st)
+      #cat("\n\tThis is percent difference of current length:", per.diff)
+      
+      if(per.diff > 0.006 | per.diff < 0 ) {
+        #cat("\n\tPercent difference is greather than 0.6% or negative, continuing.")
+      } else {
+        #cat("\n\tPercent difference is less than 0.6%, adding to vec")
+        st.res.vec <- c(st.res.vec, st)
+      }
+      
+    }
   }
+  
+  }
+  
+  # Determine threshold values based on median values of result vector
+  end.threshold <- round(quantile(et.res.vec)[2])
+  if (is.na(end.threshold)) {
+    end.threshold <- 25
+  }
+  
+  # Determine threshold values based on median values of result vector
+  start.threshold <- round(quantile(st.res.vec)[2])
+  if (is.na(start.threshold)) {
+    start.threshold <- 60
+  }
+  
+  } else {
+  # These are ont reads
+    end.threshold <- 35
+    start.threshold <- 40
 }
-
-# Determine median start threshold value of horizontal asymptote to use for 
-# threshold
-start.threshold <- round(median(st.res.vec))
 
 # Determine telomere lengths based on thresholds
 result.df <- ddply_thresh(df, start.threshold, end.threshold)
@@ -306,13 +418,8 @@ read_count$mean.tel.length <- means.df$means.tel.length
 result.tel.stats <- ddply(result.df,.(s.name, r.type, s.win, threshold, norm),
                           summarize,
                           mode.1 = amps(tel.length)$Peaks[,1][which(amps(tel.length)$Peaks[,2] >=
-                                                                      sort(amps(tel.length)$Peaks[,2], TRUE)[2])][1],
-                          mode.2 = amps(tel.length)$Peaks[,1][which(amps(tel.length)$Peaks[,2] >=
-                                                                      sort(amps(tel.length)$Peaks[,2], TRUE)[2])][2],
-                          antimode = amps(tel.length)$Antimode[,1][which(amps(tel.length)$Antimode[,2] ==
-                                                                           min(amps(tel.length)$Antimode[,2]))],
-                          bimod_coeff = bimodality_coefficient(tel.length, TRUE), .parallel=TRUE)
-
+                                                                      sort(amps(tel.length)$Peaks[,2], TRUE)[1])][1], 
+                          .parallel = TRUE)
 
 # Create percent telomere repeats means per sample type
 per.tel.stats <- ddply(df,.(s.name, r.type, s.win),

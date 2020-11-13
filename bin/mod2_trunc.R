@@ -1,17 +1,20 @@
 #!/usr/bin/env Rscript
 # Import libraries
-suppressPackageStartupMessages(library("optparse"))                                
-suppressPackageStartupMessages(library("stats"))
+suppressPackageStartupMessages(require("optparse"))                                
+suppressPackageStartupMessages(require("stats"))
 
-suppressPackageStartupMessages(library(plyr))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(Biostrings))
-suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(require(plyr))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(parallel))
+suppressPackageStartupMessages(require(Biostrings))
+suppressPackageStartupMessages(require(doParallel))
 
 # Import custom functions
-source('~/pfalci/201908_telomere_lengths/github/tld/fxns/truncation.R')
-source('~/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
+source('tld/fxns/truncation.R')
+source('tld/fxns/stopQuietly.R')
+
+#source('/home/jake/tmp/docker/test_data/tld/fxns/truncation.R')
+#source('/home/jake/tmp/docker/test_data/tld/fxns/stopQuietly.R')
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE, 
@@ -35,6 +38,14 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
 # get command line options, if help option encountered print help and exit,          
 # otherwise if options not found on command line then set defaults,                  
 opt <- parse_args(OptionParser(option_list=option_list))                             
+
+### Temporary troubleshooting options
+# opt <- list()
+# opt$prefix <- 'dockTest'
+# opt$out_path <- '~/tmp/docker/test_data/tld/data/o_dir'
+# opt$in_fasta <- '~/tmp/docker/test_data/tld/data/w_dir/output/alappa.telo.fasta'
+# opt$in_sub_fasta <- '~/tmp/docker/test_data/tld/data/w_dir/output/ptrog.sample.telo.fasta'
+# opt$threads <- 7
 
 # print some progress messages to stderr if \"quietly\" wasn't requested             
 if ( opt$verbose ) {                                                                 

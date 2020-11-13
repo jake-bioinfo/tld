@@ -1,5 +1,5 @@
 # Setting default theme for plotting
-tx_fam <- "Arial"
+tx_fam <- "HersheySans"
 def_th <- theme(
   # Hide panel borders and remove grid lines
   #panel.border = element_blank(),
@@ -10,8 +10,8 @@ def_th <- theme(
   plot.margin = margin(t = 0, r = 0.5, b = 0.5, l = 0.5, unit = "cm"),
   
   # Adding title dimensions
-  text = element_text(size = 28, 
-                      face = "plain", 
+  text = element_text(size = 28,
+                      face = "bold", 
                       family = tx_fam),
   plot.title = element_text(size = 42, 
                             face = "plain", 
@@ -23,7 +23,7 @@ def_th <- theme(
                        hjust = 0.5,
                        family = tx_fam), 
   # Adding axis title margins
-  axis.text.x = element_text(angle = 45, margin = margin(t = 0.3, unit = "cm")),
+  axis.text.x = element_text(angle = 90, margin = margin(t = 0.3, unit = "cm")),
   axis.title.x = element_text(margin = margin(0.5, 0, 0, 0, unit = "cm"), 
                               face = "plain", size = 36),
   axis.title.y = element_text(margin = margin(0, 0.5, 0, 0, unit = "cm"), 
@@ -95,7 +95,7 @@ def.bar <- function(df, title, x.lab, y.lab,
                           chr.end=factor(chr.end, levels = c("5'", "3'"))), 
                    aes(x = s.id, y = reads.per.chr, fill = s.name)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  scale_x_continuous(labels = as.character(df$s.id), breaks = df$s.id) +
+  scale_x_discrete(labels = as.character(df$s.id), breaks = df$s.id) +
   facet_wrap( ~ chr.end) 
   
   #bar <- bar + hist_lb(title, x.lab, y.lab, color.lab, color.lab)

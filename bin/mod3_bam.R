@@ -1,18 +1,23 @@
 #!/usr/bin/env Rscript
 # Import libraries
 # Combine bam and result and endedness
-suppressPackageStartupMessages(library("optparse"))                                
-suppressPackageStartupMessages(library("stats"))
+suppressPackageStartupMessages(require("optparse"))                                
+suppressPackageStartupMessages(require("stats"))
 
-suppressPackageStartupMessages(library(plyr))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(GenomicAlignments))
-suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(require(plyr))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(GenomicAlignments))
+suppressPackageStartupMessages(require(parallel))
+suppressPackageStartupMessages(require(doParallel))
+suppressPackageStartupMessages(require(seqinr))
 
 # Sourcing useful functions
-source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/end_bam_chr.R')
-source('/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/stopQuietly.R')
+source('/tld/fxns/end_bam_chr.R')
+source('/tld/fxns/stopQuietly.R')
+
+# source('~/tmp/docker/test_data/tld/fxns/end_bam_chr.R')
+# source('~/tmp/docker/test_data/tld/fxns/stopQuietly.R')
+
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE, 
@@ -21,6 +26,9 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
                                 dest = "verbose", help = "Print little output"),
                     make_option(c("-i", "--in_bam"), type = "character",  
                                 help = "full path to telomere bam file", 
+                                metavar = "file"),
+                    make_option(c("-r", "--reference"), type = "character",
+                                help = "full path to reference used for alignment",
                                 metavar = "file"),
                     make_option(c("-o", "--out_path"), type = "character", 
                                 help = "full path to folder where results should be stored"),
@@ -40,6 +48,15 @@ if ( opt$verbose ) {
               Sys.time(), collapse = ""), stderr())         
 }                                                                                    
 
+## Temporary options
+# opt <- list()
+# opt$prefix <- 'dockTest'
+# opt$out_path <- '~/tmp/docker/test_data/tld/data/o_dir'
+# opt$in_bam <- '~/tmp/docker/test_data/tld/data/o_dir/output/dockTest.alignment.sorted.bam'
+# opt$reference <- '~/tmp/docker/test_data/tld/data/w_dir/input/mod_ref_mm.fasta'
+# opt$threads <- 6
+
+
 # Determining number of threads
 if ( is.null(opt$threads) ) {
   cat("\nNumber of parallel processors automatically set to max-2.\n")
@@ -51,6 +68,7 @@ if ( is.null(opt$threads) ) {
 # Confirm all inputs
 cat("\n These are the options you submitted: \n",
     paste("\tInput bam:", opt$in_bam, collapse = ""), "\n",
+    paste("\tReference:", opt$reference, collapse = ""), "\n",
     paste("\tOut path:", opt$out_path, collapse = ""), "\n",
     paste("\tPrefix:", opt$prefix, collapse = ""), "\n",
     paste("\tProcessors:", noCores, collapse = ""), "\n",
@@ -69,6 +87,10 @@ if ( opt_check == "y") {
 # Setup parallel environment
 cl <- makeCluster(noCores)
 registerDoParallel()
+
+# Import reference
+ref.path <- opt$reference
+ref <- read.fasta(ref.path, seqtype = "DNA")
 
 # Import csv files
 bam.path <- opt$in_bam
@@ -113,26 +135,47 @@ for (r in r.name.ls[[1]]){
 read_count.Abam <- ddply(result.comb.bam.df, .(s.name, r.type, s.win, norm),
                          summarize, 
                          reads.after.bam = length(unique(r.name)), 
-                         mean.tel.length.Abam = mean(tel.length))
+                         mean.tel.length.Abam = mean(tel.length), .parallel = TRUE)
+
+# Create chr list
+# chr_tot <- length(ref)
+# i <- 1
+# chr_ln_ls <- list()
+# while(i < chr_tot) {
+#   chr_ln_ls[[i]] <- length(ref[[i]])
+#   i <- i + 1 
+# }
+
+# Create chr list
+chr_nm_ls <- names(ref)
+chr_ln_ls <- list()
+i <- 1
+while(i < length(chr_nm_ls)) {
+  chr_ln_ls[paste(chr_nm_ls[i])] <- length(ref[[i]])
+  i <- i + 1
+}
 
 # Add endedness
 tmp.bam.df <- data.frame()
 
-tmp.bam.df <- ddply(result.comb.bam.df,.(s.name, r.name, r.type, s.win, 
-                                         norm, threshold, seqnames, 
-                                         strand, start, end, width, 
-                                         tel.length), 
-                    end_bam_chr, mp = 4E5, .parallel = TRUE)
+tmp.bam.df <- ddply(result.comb.bam.df[
+  result.comb.bam.df$seqnames!="chr_MIT"&
+    result.comb.bam.df$seqnames!="chr_API",],.(s.name, r.name, r.type, s.win, 
+                                               norm, threshold, seqnames, 
+                                               strand, start, end, width, 
+                                               tel.length), 
+  end_bam_chr, .parallel = TRUE)
 
 end.bam.df <- na.omit(tmp.bam.df)
 
 # Reformat chromosome names for further processing
-end.bam.df$seqnames <- as.numeric(gsub("chr_", "", end.bam.df$seqnames))
+#end.bam.df$seqnames <- as.numeric(gsub("chr_", "", end.bam.df$seqnames))
+end.bam.df$seqnames <- gsub("chr_", "", end.bam.df$seqnames)
 
 # Add to basic stats after end assignment
 read_count.Abam <- ddply(end.bam.df,.(s.name, r.type, s.win, norm), summarize, 
                          reads.after.en = length(unique(r.name)),
-                         mean.tel.length.Aen = mean(tel.length))
+                         mean.tel.length.Aen = mean(tel.length), .parallel = TRUE)
 
 # Save Read count, bam, telomere csv
 read_count.Abam.f <- paste(c(result.path, "/", opt$prefix, ".read_count.Abam.Rda"), collapse = "")

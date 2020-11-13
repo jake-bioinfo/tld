@@ -88,7 +88,7 @@ do
     then
         outfile=${line#>}.fa
 	out_f=$( echo $outfile | sed -e "s:/::g" | sed -e "s: :_:g" | sed -e "s:|:_:g" | sed -e "s/:/-/g" )
-	echo -e "\nProcessing file: $out_f"
+#	echo -e "\nProcessing file: $out_f"
         echo $line > ${out_d}/"$out_f"
     else
         echo $line >> ${out_d}/"$out_f"

@@ -1,1 +1,0 @@
-./telo_pipe.sh -i ~/pfalci/201908_telomere_lengths/data/202005_s2_percent_tables/ -p 202011 -r ~/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna -d ~/pfalci/201908_telomere_lengths/results/202011_s2_telo/ -s "s2_wt,s2_irr" -m "8491,7638" -t 6 2>&1 | tee log

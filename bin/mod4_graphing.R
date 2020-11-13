@@ -1,18 +1,20 @@
 #!/usr/bin/env Rscript
 # Import libraries
 # Create figures from data
-suppressPackageStartupMessages(library("optparse"))                                
-suppressPackageStartupMessages(library("stats"))
+suppressPackageStartupMessages(require("optparse"))                                
+suppressPackageStartupMessages(require("stats"))
 
-suppressPackageStartupMessages(library(RColorBrewer))
-suppressPackageStartupMessages(library(gridExtra))
-suppressPackageStartupMessages(library(grid))
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(cowplot))
-suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(require(RColorBrewer))
+suppressPackageStartupMessages(require(gridExtra))
+suppressPackageStartupMessages(require(grid))
+suppressPackageStartupMessages(require(ggplot2))
+suppressPackageStartupMessages(require(cowplot))
+suppressPackageStartupMessages(require(plyr))
 
 # Sourcing useful functions
-source("/home/jaker/pfalci/201908_telomere_lengths/github/tld/fxns/def_plotting.R")
+source('/tld/fxns/def_plotting.R')
+
+#source('/home/jake/tmp/docker/test_data/tld/fxns/def_plotting.R') 
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
@@ -22,8 +24,6 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
                     make_option(c("-r", "--res_path"), type = "character",
                                 help = "path to results from previous scripts",
                                 metavar = "PATH"),
-                    make_option(c("-o", "--out_path"), type = "character",
-                                help = "full path to folder where results should be stored"),
                     make_option(c("-p", "--prefix"), type = "character",
                                 help = "prefix for naming output files, must match from module 1")
 )
@@ -31,6 +31,13 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
 # get command line options, if help option encountered print help and exit,
 # otherwise if options not found on command line then set defaults,
 opt <- parse_args(OptionParser(option_list=option_list))
+
+## Tmp variables
+ # opt <- list()
+ # opt$res_path <- '/home/jake/tmp/docker/test_data/tld/data/o_dir'
+ # opt$prefix <- 'dockTest'
+
+
 
 # print some progress messages to stderr if \"quietly\" wasn't requested
 if ( opt$verbose ) {
@@ -41,7 +48,6 @@ if ( opt$verbose ) {
 # Confirm all inputs
 cat("\n These are the options you submitted: \n",
     paste("\tResults path:", opt$res_path, collapse = ""), "\n",
-    paste("\tOut path:", opt$out_path, collapse = ""), "\n",
     paste("\tPrefix:", opt$prefix, collapse = ""), "\n",
     paste("Are these correct? (y/n)", collapse = ""), "\n"
 )
@@ -55,9 +61,7 @@ if ( opt_check == "y") {
   q(save = "no", status = 1, runLast = FALSE)
 }
 
-
-
-# Import csv files 
+# Import csv files
 result.path <- opt$res_path
 
 df.f <- paste(c(result.path, "/", opt$prefix, ".df.Rda"), collapse = "")
@@ -78,7 +82,6 @@ result.tel.stats <- readRDS(file = result.tel.stats.f)
 end.bam.df.f <- paste(c(result.path, "/", opt$prefix, ".end.bam.csv"),
                       collapse = "")
 end.bam.df <- read.csv(file = end.bam.df.f, stringsAsFactors = FALSE)
-#end.bam.df$s.name[end.bam.df$s.name=="3d7"] <- "wt"
 
 read_count.f <- paste(c(result.path, "/", opt$prefix, ".read_count.Rda"),
                       collapse = "")
@@ -89,34 +92,33 @@ read_count.Abam.f <- paste(c(result.path, "/", opt$prefix,
                            collapse = "")
 read_count.Abam <- readRDS(file = read_count.Abam.f)
 
-df.f <- paste(c(result.path, "/", prefix, ".df.Rda"), collapse = "")
+df.f <- paste(c(result.path, "/", opt$prefix, ".df.Rda"), collapse = "")
 df <- readRDS(file = df.f)
 
-result.df.f <- paste(c(result.path, "/", prefix, ".result.df.Rda"), 
+result.df.f <- paste(c(result.path, "/", opt$prefix, ".result.df.Rda"), 
                      collapse = "")
 result.df <- readRDS(file = result.df.f)
 
-per.tel.stats.f <- paste(c(result.path, "/", prefix, ".per.tel.stats.Rda"), 
+per.tel.stats.f <- paste(c(result.path, "/", opt$prefix, ".per.tel.stats.Rda"), 
                          collapse = "")
 per.tel.stats <- readRDS(file = per.tel.stats.f)
 
-result.tel.stats.f <- paste(c(result.path, "/", prefix, 
+result.tel.stats.f <- paste(c(result.path, "/", opt$prefix, 
                               ".result.tel.stats.Rda"), collapse = "") 
 result.tel.stats <- readRDS(file = result.tel.stats.f)
 
-end.bam.df.f <- paste(c(result.path, "/", prefix, ".end.bam.csv"), 
+end.bam.df.f <- paste(c(result.path, "/", opt$prefix, ".end.bam.csv"), 
                       collapse = "")
 end.bam.df <- read.csv(file = end.bam.df.f, stringsAsFactors = FALSE)
 
-read_count.f <- paste(c(result.path, "/", prefix, ".read_count.Rda"), 
+read_count.f <- paste(c(result.path, "/", opt$prefix, ".read_count.Rda"), 
                       collapse = "")
 read_count <- readRDS(file = read_count.f)
 
-read_count.Abam.f <- paste(c(result.path, "/", prefix, 
+read_count.Abam.f <- paste(c(result.path, "/", opt$prefix, 
                              ".read_count.Abam.Rda"), 
                            collapse = "")
 read_count.Abam <- readRDS(file = read_count.Abam.f)
-
 
 # Create table for data on chromosomes
 bam_read_count <- ddply(end.bam.df,.(s.name, r.type,
@@ -124,16 +126,11 @@ bam_read_count <- ddply(end.bam.df,.(s.name, r.type,
                         reads.per.chr=length(unique(r.name)),
                         tel.length=mean(tel.length))
 
-wo_12_13_bam_read_count <- bam_read_count[!(bam_read_count['chr.end']=="3'" & 
-                                              bam_read_count['s.name']=="irr" & 
-                                              (bam_read_count['seqnames']==12 | 
-                                                 bam_read_count['seqnames']==13)),]
-
 # Perform t-test
-t1 <- result.df[result.df['s.name'] == "wt" & 
+t1 <- result.df[result.df['s.name'] == unique(result.df$s.name)[1] & 
                   result.df['r.type'] == "nl" & 
                   result.df['norm'] == "normalized",]$tel.length
-t2 <- result.df[result.df['s.name'] == "irr" & 
+t2 <- result.df[result.df['s.name'] == unique(result.df$s.name)[2] & 
                   result.df['r.type'] == "nl" & 
                   result.df['norm'] == "normalized",]$tel.length
 t_test.res <- t.test(t1, t2, var.equal = FALSE, alternative = "two.sided")
@@ -179,48 +176,28 @@ per.tel.hist <- perHistogram +
   hist_lb(hist.title, hist.x, hist.y, hist.color, hist.fill) +
   def_th + theme(legend.key.size = unit(5, "lines")) + cl_pal
 
-hist_tel_rep.f <- paste(c(result.path, "/", prefix, 
+hist_tel_rep.f <- paste(c(result.path, "/", opt$prefix, 
                           ".telomere_rep_dist.png"), collapse = "")
 def.ggsave(hist_tel_rep.f, plot = per.tel.hist)
 
-# Temp fix for modes
-result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name=="wt",]$mode.1 <-
-  result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name=="wt",]$mode.2
-
 # Bar graph for read count after telomere processing
-plot_bam_read_count$seqnames <- as.numeric(gsub("chr_", "", 
-                                                plot_bam_read_count$seqnames))
-plot_bam_read_count$s.id <- plot_bam_read_count$seqnames
+# plot_bam_read_count$seqnames <- as.numeric(gsub("chr_", "", 
+#                                                 plot_bam_read_count$seqnames))
+
+plot_bam_read_count$s.id <- as.factor(plot_bam_read_count$seqnames)
 title <- "A. Number of Reads by End"
 y.lab <- "Telomere Read Count"
 x.lab <- "Chromosome"
 color.lab <- "Sample Type"
 
-# Setup annotations
-ann_text_9 <- data.frame(s.id = 9, reads.per.chr = 1300, s.name = "irr", 
-                       lab = "*",
-                       chr.end=factor("5'", levels = c("5'", "3'")))
-
-ann_text_12 <- data.frame(s.id = 12, reads.per.chr = 600, s.name = "irr", 
-                       lab = "*",
-                       chr.end=factor("3'", levels = c("5'", "3'")))
-
-ann_text_13 <- data.frame(s.id = 13, reads.per.chr = 600, s.name = "irr", 
-                       lab = "*",
-                       chr.end=factor("3'", levels = c("5'", "3'")))
-
 bar_pl <- def.bar(plot_bam_read_count,
                   title, x.lab, y.lab,
                   color.lab) +
-  geom_text(data = ann_text_9, label = "*  ", size = 15) +
-  geom_text(data = ann_text_12, label = "*  ", size = 15) +
-  geom_text(data = ann_text_13, label = "*  ", size = 15)
-  
-  def_th + theme(legend.key.size = unit(5, "lines")) + cl_pal
+  def_th + theme(legend.key.size = unit(5, "lines"))
 
 
-bar_pl.f <- paste(c(result.path, "/", prefix, ".telomere_read_count.png"), collapse = "")
-def.ggsave(bar_pl.f, plot = bar_pl, height = 8)
+bar_pl.f <- paste(c(result.path, "/", opt$prefix, ".telomere_read_count.png"), collapse = "")
+def.ggsave(bar_pl.f, plot = bar_pl, height = 10)
 
 # Create Histograms
 h.title <- "B. Telomere Length Distribution"
@@ -247,10 +224,12 @@ hist <- ggplot(result.df[result.df$norm=="normalized",],
 hist_pl <- hist + hist_lb(h.title, h.x, 
                           h.y, h.color, 
                           h.fill) + 
-  def_th + theme(legend.key.size = unit(3, "lines"), legend.position = "top",
-                 legend.text=element_text(size = 36)) + 
+  def_th + theme(legend.key.size = unit(4, "lines"), legend.position = "top",
+                 legend.text=element_text(size = 38), 
+                 legend.spacing.x = unit(1.0, 'cm')) + 
   cl_pal
-hist.pl.f <- paste(c(result.path, "/", prefix, ".histo_60-60_200SW.png"), 
+
+hist.pl.f <- paste(c(result.path, "/", opt$prefix, ".histo_60-60_200SW.png"), 
                    collapse = "")
 def.ggsave(hist.pl.f, plot = hist_pl)
 
@@ -258,17 +237,17 @@ def.ggsave(hist.pl.f, plot = hist_pl)
 bar_pl_f <- bar_pl + theme(legend.position = "none")
 hist_pl_f <- hist_pl + theme(legend.position = "none")
 leg <- get_legend(hist_pl)
-title <- textGrob("Figure 1", x = 0.07,
+title <- textGrob("Figure 1", x = 0.1,
                   gp = gpar(fontsize = 80, 
-                            fontfamily = "Arial", 
-                            fontface = "plain"))
+                            fontfamily = "HersheySans", 
+                            fontface = "bold"))
 lay <- rbind(c(1,1), c(3,4), c(2,2))
 
 fig1 <- grid.arrange(title, leg, bar_pl_f, hist_pl_f, nrow = 3, ncol = 2,
                      layout_matrix = lay,
                      widths = c(5, 5), heights = c(1.5, 7, 1.5))
 
-fig1.f <- paste(c(result.path, "/", prefix, ".Figure_1.png"), collapse = "")
+fig1.f <- paste(c(result.path, "/", opt$prefix, ".Figure_1.png"), collapse = "")
 def.ggsave(fig1.f, plot = fig1)
 
 # Density Plots, AllSW and ccs
@@ -283,7 +262,7 @@ scat_pl <- def.scatter(result.df[result.df$norm=="normalized", ],
                        color.lab, shape.lab) +
   facet_wrap(s.win ~ r.type ~ s.name) 
 
-scat_pl.f <- paste(c(result.path, "/", prefix, ".60_60_DensityPlot.png"), 
+scat_pl.f <- paste(c(result.path, "/", opt$prefix, ".60_60_DensityPlot.png"), 
                    collapse = "")
 def.ggsave(scat_pl.f, plot = scat_pl, height = 16)
 
@@ -301,6 +280,6 @@ scat_pl <- def.scatter(result.df[result.df$norm=="normalized", ],
   facet_wrap(r.type ~ s.name, 
              ncol = 2) 
 
-scat_pl.f <- paste(c(result.path, "/", prefix, 
+scat_pl.f <- paste(c(result.path, "/", opt$prefix, 
                      ".60_60_DensityPlot.200sw.png"), collapse = "")
 def.ggsave(scat_pl.f, plot = scat_pl, height = 12)

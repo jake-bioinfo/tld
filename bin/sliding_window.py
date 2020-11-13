@@ -76,7 +76,7 @@ def main(argv):
           seq_end_nm = str("00000")
         if (len(seq_end_nm)) <= 1:
           seq_end_nm = str("0000" + seq_end_nm)
-        if (len(seq_end_nm)) <=2:
+        if (len(seq_end_nm)) <= 2:
           seq_end_nm = str("000" + seq_end_nm)
         if (len(seq_end_nm)) <= 3:
           seq_end_nm = str("00" + seq_end_nm)

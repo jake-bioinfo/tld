@@ -1,5 +1,5 @@
 # Setting default theme for plotting
-tx_fam <- "Arial"
+tx_fam <- "ArialMT"
 def_th <- theme(
   # Hide panel borders and remove grid lines
   #panel.border = element_blank(),

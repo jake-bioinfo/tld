@@ -260,3 +260,21 @@ Starting to assign telomere ends based on bam at: 2020-11-12 18:10:22
 
 Options have been confirmed, continuing... 
 
+
+Graphing results at Thu Nov 12 06:17:50 PM EST 2020
+
+
+Creating graphs from telomere ends: 2020-11-12 18:17:51
+
+ These are the options you submitted: 
+ 	Results path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_s2_telo/ 
+ 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_s2_telo/ 
+ 	Prefix: 202011 
+ Are these correct? (y/n) 
+
+Options have been confirmed, continuing... 
+
+Error in paste(c(result.path, "/", prefix, ".df.Rda"), collapse = "") : 
+  object 'prefix' not found
+Execution halted
+JOBS DONE.... at Thu Nov 12 06:18:06 PM EST 2020.

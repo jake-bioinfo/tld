@@ -176,23 +176,55 @@ else
 fi 
 
 # Telo length assignment
-echo -e "\nStarting telomere length assessment at `date`\n"
-${bin_path}/mod1_ln.R -i ${telo_csv} -o ${res_dir} -p ${pre} -m ${med} -r ${sn} -t ${t}
+# Check if df file already created
+df=$( find ${res_dir} -type f -name "${pre}.df.Rda" );
+if [[ -f ${df} ]]; then 
+	echo -e "\nDF file present, skipping length assessment."
+
+else 
+	echo -e "\nStarting telomere length assessment at `date`\n"
+	${bin_path}/mod1_ln.R -i ${telo_csv} -o ${res_dir} -p ${pre} -m ${med} -r ${sn} -t ${t}
+
+fi
 
 # Telomere truncation
-echo -e "\nStarting truncation of telomeres at `date`\n"
-${bin_path}/mod2_trunc.R -i ${in_fa} -s ${in_fa_s} -o ${res_dir} -p ${pre} -t ${t}
+# Check if truncation file already created
+trunc=$( find ${res_dir} -type f -name "${pre}.dna.trunc.fa.gz" );
+if [[ -f ${trunc} ]]; then 
+	echo -e "\nTruncation file already created, skipping."
+
+else
+	echo -e "\nStarting truncation of telomeres at `date`\n"
+	${bin_path}/mod2_trunc.R -i ${in_fa} -s ${in_fa_s} -o ${res_dir} -p ${pre} -t ${t}
+
+fi
 
 # Minimap 2 alignment
-echo -e "\nStarting to align truncated reads to reference at `date`\n"
-${bin_path}/mm2_pbalign.sh -i ${res_dir}/${pre}.dna.trunc.fa.gz -p ${pre} -r ${ref} -d ${res_dir} -t ${t}
+# Check if alignment already created
+align=$( find ${res_dir}/output -type f -name "${pre}.alignment.sorted.bam" );
+if [[ -f ${align} ]]; then 
+	echo -e "\nAlignment file already created, skipping."
+
+else
+	echo -e "\nStarting to align truncated reads to reference at `date`\n"
+	${bin_path}/mm2_pbalign.sh -i ${res_dir}/${pre}.dna.trunc.fa.gz -p ${pre} -r ${ref} -d ${res_dir} -t ${t}
+
+fi
 
 # Assigning endedness based on minimap alignment
-echo -e "\nAssigning endedness at `date`\n"
-${bin_path}/mod3_bam.R -i ${res_dir}/output/${pre}.alignment.sorted.bam -o ${res_dir} -p ${pre} -t ${t}
+# Check if endednesss already assigned
+end=$( find ${res_dir} -type f -name "${pre}.end.bam.csv" );
+if [[ -f ${end} ]]; then 
+	echo -e "\nEnd bam csv already created, skipping."
+
+else
+	echo -e "\nAssigning endedness at `date`\n"
+	${bin_path}/mod3_bam.R -i ${res_dir}/output/${pre}.alignment.sorted.bam -o ${res_dir} -p ${pre} -t ${t}
+
+fi
 
 # Graph results
 echo -e "\nGraphing results at `date`\n"
-${bin_path}/mod4_graphing.R -r ${res_dir} -p ${pre} -o ${res_dir} 
+${bin_path}/mod4_graphing.R -r ${res_dir} -p ${pre} 
 
 echo -e "JOBS DONE.... at `date`."

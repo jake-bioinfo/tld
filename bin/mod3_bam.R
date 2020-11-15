@@ -113,7 +113,7 @@ for (r in r.name.ls[[1]]){
 read_count.Abam <- ddply(result.comb.bam.df, .(s.name, r.type, s.win, norm),
                          summarize, 
                          reads.after.bam = length(unique(r.name)), 
-                         mean.tel.length.Abam = mean(tel.length))
+                         mean.tel.length.Abam = mean(tel.length) .parallel = TRUE)
 
 # Add endedness
 tmp.bam.df <- data.frame()
@@ -132,7 +132,7 @@ end.bam.df$seqnames <- as.numeric(gsub("chr_", "", end.bam.df$seqnames))
 # Add to basic stats after end assignment
 read_count.Abam <- ddply(end.bam.df,.(s.name, r.type, s.win, norm), summarize, 
                          reads.after.en = length(unique(r.name)),
-                         mean.tel.length.Aen = mean(tel.length))
+                         mean.tel.length.Aen = mean(tel.length), .parallel = TRUE)
 
 # Save Read count, bam, telomere csv
 read_count.Abam.f <- paste(c(result.path, "/", opt$prefix, ".read_count.Abam.Rda"), collapse = "")

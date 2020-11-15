@@ -130,7 +130,7 @@ fi
 
 # Assign files based on input directory 
 telo_csv=$( find ${in_dir} -name "200sw_telomere_ranges.perc.sorted.csv" )
-in_fa_s=$( find ${in_dir}/output -name "*.sample.*" | grep -v "lenStats" )
+in_fa_s=$( find ${in_dir}/output -name "*.sample.*" | grep -v "lenStats" | grep -v "slide" )
 pref=$( echo ${in_fa_s} | xargs -L 1 basename | cut -d'.' -f1 )
 in_fa=$( find ${in_dir}/output -name "*.fasta" | grep -v ${pref} )
 

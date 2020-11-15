@@ -40,6 +40,15 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
 # otherwise if options not found on command line then set defaults,
 opt <- parse_args(OptionParser(option_list=option_list))
 
+
+opt <- list()
+opt$in_csv <- "~/tmp/202011_telo_homer/200sw_telomere_ranges.perc.sorted.csv"
+opt$out_path <- "~/pfalci/201908_telomere_lengths/results/202011_homer"
+opt$threads <- 6
+opt$median_values <- "8491,7638"
+opt$rename_samples <- "s2_wt,s2_irr"
+opt$prefix <- "202011"
+
 # print some progress messages to stderr if \"quietly\" wasn't requested
 if ( opt$verbose ) {
   write(paste("\nStarting to process telomere reads at:",
@@ -140,15 +149,14 @@ for (i in 1:length(unique(df$s.name))) {
             "\nIs this correct (y/n)?", collapse = ""))
   
   # Check that median values are being assigned to correct sample
-  nm_lp_ch <- readLines(con = "stdin", n = 1)
-  if (nm_lp_ch == "y") {
-    cat("\n\t Correct median match, continuing... \n\n")
+#  nm_lp_ch <- readLines(con = "stdin", n = 1)
+#  if (nm_lp_ch == "y") {
+#   cat("\n\t Correct median match, continuing... \n\n")
     df$read.median[df$s.name==unique(df$s.name)[i]] <- med_vec[[1]][i]
-  } else {
-    cat("\n\t Incorrect median match, exiting.\n\n")
-    q(save = "no", status = 4, runLast = FALSE)
-  }
-  
+#  } else {
+#    cat("\n\t Incorrect median match, exiting.\n\n")
+#    q(save = "no", status = 4, runLast = FALSE)
+#  }
 }
 
 # Convert median to numeric
@@ -211,6 +219,17 @@ st.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
 # Subset start threshold data frame in order to determine max
 sts.df <- st.df[st.df$e.thresh==50&st.df$s.name==unique(s.result.df$s.name)[1], ]
 sts.df$r.per.st <- as.numeric(sts.df$r.per.st)
+
+# Quick plots
+attach(ets.df)
+plot(e.thresh, tel.ln.mean, xlab = "End Threshold", 
+     ylab = "Mean Telomere Length (kb)")
+lines(lowess(e.thresh, tel.ln.mean), col="red")
+
+attach(sts.df)
+plot(s.thresh, r.per.st, xlab = "Start Threshold", 
+     ylab = "Reads per Start Threshold")
+lines(lowess(s.thresh, r.per.st), col="red")
 
 # Determine asymptote of end threshold and max of start threshold
 # subsets

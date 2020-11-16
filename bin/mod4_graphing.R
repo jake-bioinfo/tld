@@ -119,15 +119,15 @@ bam_read_count <- ddply(end.bam.df,.(s.name, r.type,
                         tel.length=mean(tel.length))
 
 wo_12_13_bam_read_count <- bam_read_count[!(bam_read_count['chr.end']=="3'" & 
-                                              bam_read_count['s.name']=="s2_irr" & 
+                                              bam_read_count['s.name']==unique(result.df$s.name)[2] & 
                                               (bam_read_count['seqnames']==12 | 
                                                  bam_read_count['seqnames']==13)),]
 
 # Perform t-test
-t1 <- result.df[result.df['s.name'] == "s2_wt" & 
+t1 <- result.df[result.df['s.name'] == unique(result.df$s.name)[1] & 
                   result.df['r.type'] == "nl" & 
                   result.df['norm'] == "normalized",]$tel.length
-t2 <- result.df[result.df['s.name'] == "s2_irr" & 
+t2 <- result.df[result.df['s.name'] == unique(result.df$s.name)[2] & 
                   result.df['r.type'] == "nl" & 
                   result.df['norm'] == "normalized",]$tel.length
 t_test.res <- t.test(t1, t2, var.equal = FALSE, alternative = "two.sided")
@@ -178,8 +178,8 @@ hist_tel_rep.f <- paste(c(result.path, "/", opt$prefix,
 def.ggsave(hist_tel_rep.f, plot = per.tel.hist)
 
 # Temp fix for modes
-result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name=="s2_wt",]$mode.1 <-
-  result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name=="s2_wt",]$mode.2
+result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name==unique(result.df$s.name)[1],]$mode.1 <-
+  result.tel.stats[result.tel.stats$norm=="normalized" & result.tel.stats$s.name==unique(result.df$s.name)[1],]$mode.2
 
 # Bar graph for read count after telomere processing
 plot_bam_read_count$seqnames <- as.numeric(gsub("chr_", "", 
@@ -191,15 +191,15 @@ x.lab <- "Chromosome"
 color.lab <- "Sample Type"
 
 # Setup annotations
-ann_text_9 <- data.frame(s.id = 9, reads.per.chr = 1300, s.name = "s2_irr", 
+ann_text_9 <- data.frame(s.id = 9, reads.per.chr = 1300, s.name = unique(result.df$s.name)[2], 
                          lab = "*",
                          chr.end=factor("5'", levels = c("5'", "3'")))
 
-ann_text_12 <- data.frame(s.id = 12, reads.per.chr = 600, s.name = "s2_irr", 
+ann_text_12 <- data.frame(s.id = 12, reads.per.chr = 600, s.name = unique(result.df$s.name)[2], 
                           lab = "*",
                           chr.end=factor("3'", levels = c("5'", "3'")))
 
-ann_text_13 <- data.frame(s.id = 13, reads.per.chr = 800, s.name = "s2_irr", 
+ann_text_13 <- data.frame(s.id = 13, reads.per.chr = 800, s.name = unique(result.df$s.name)[2], 
                           lab = "*",
                           chr.end=factor("3'", levels = c("5'", "3'")))
 

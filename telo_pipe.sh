@@ -10,6 +10,8 @@ sn=''
 bf=''
 med=''
 t=''
+infq_1=''
+infq_2=''
 
 cur_dir=`pwd`
 bin_path=${cur_dir}/bin/
@@ -17,12 +19,16 @@ bin_path=${cur_dir}/bin/
 # Set help dialog
 help_inf="
 
-        Usage: telo_pipe.sh -i <input> -r <reference> -p <prefix> -d <result_dir> -s <sample_names> 
-			    -m <medians> -t <threads>
+        Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
+			    -d <result_dir> -s <sample_names> -m <medians> -t <threads>
 
-                -h|--help       	Prints out this dialogue
+                -h|--help       	Prints out this dialogiue
+		
+		-w|--work_dir		Input working directory
 
-                -i|--input      	telomere results directory
+                -a|--infq1      	Input fastq1 
+		
+		-f|--infq2		Input fastq2
 
                 -p|--prefix     	Character prefix for file names, ex. \"p_falciparum_telomeres\"
 
@@ -47,7 +53,7 @@ if [[ -z $@ ]]; then
 fi
 
 # Read options
-ARGS=$( getopt -o h::i:p:r:d:s:m:t: -l "help::,input:,prefix:,reference:,result_dir:,sample_names:,medians:,threads" -n "telo_pipe.sh" -- "$@" );
+ARGS=$( getopt -o h::w:a:f:p:r:d:s:m:t: -l "help::,work_dir:,infq1:infq2:,prefix:,reference:,result_dir:,sample_names:,medians:,threads" -n "telo_pipe.sh" -- "$@" );
 
 
 eval set -- "$ARGS";
@@ -60,10 +66,24 @@ while true; do
                         echo -e "${help_inf}";
                         exit 1;
                 ;;
-                -i|--input)
+                -w|--work_dir)
                         shift;
                         if [[ -n $1 ]]; then
-                                in_dir=$1;
+                                w_dir=$1;
+                                shift;
+                        fi
+                ;;
+		-a|--infq1)
+                        shift;
+                        if [[ -n $1 ]]; then
+                                infq_1=$1;
+                                shift;
+                        fi
+                ;;
+		-f|--infq2)
+                        shift;
+                        if [[ -n $1 ]]; then
+                                infq_2=$1;
                                 shift;
                         fi
                 ;;
@@ -117,8 +137,9 @@ while true; do
 done
 
 # Check required arguements are met
-if [[ -z $in_dir || -z $pre || -z $ref || -z $res_dir || -z $sn || -z $med ]]; then
-        echo -e "\nRequired options (-i,-p,-r,-d,-s,-m) were not supplied, exiting\n"
+if [[ -z $w_dir || -z $pre || -z $ref || -z $res_dir \
+|| -z $sn || -z $med || -z $infq_1} || -z $infq_2} ]]; then
+        echo -e "\nRequired options (-w,-a,-f,-p,-r,-d,-s,-m) were not supplied, exiting\n"
         exit 1;
 fi
 
@@ -128,12 +149,42 @@ if [[ -z $t ]]; then
 	t=$( echo `nproc --all`-2 | bc )
 fi
 
+# Echo initial variables and run telo count script
+initial_vars="
+	
+	Working Directory: $w_dir
+
+        Input fastq1: $infq_1
+
+        Input fastq2: $infq_2
+
+        Reference Assembly: $ref
+
+	Threads: $t	
+"
+
+echo -e "\nThese are initial variables for telo csv script:
+	${initial_vars}
+	"
+
+exit 1
+
+# Create telo length files
+# Check if telo length file already exists
+if [[ -f ${telo_csv} ]]; then
+        echo -e "\nTelo csv file already exists, continuing\n"
+
+else
+        echo -e "\nTelo csv file does not exists, starting telo script\n"
+        ${bin_path}/telo_homer.sh -s ${infq_1} -a ${infq_2} -w ${w_dir} -r ${ref} -t ${t}
+
+fi
+
 # Assign files based on input directory 
 telo_csv=$( find ${in_dir} -name "200sw_telomere_ranges.perc.sorted.csv" )
 in_fa_s=$( find ${in_dir}/output -name "*.sample.*" | grep -v "lenStats" | grep -v "slide" )
 pref=$( echo ${in_fa_s} | xargs -L 1 basename | cut -d'.' -f1 )
 in_fa=$( find ${in_dir}/output -name "*.fasta" | grep -v ${pref} )
-
 
 # Set read out
 readout_vars="
@@ -167,13 +218,26 @@ echo -e "\nThese are the variables:
         ${readout_vars}
         "
 
+exit 1
+
 # Checking if results directory exists
 if [[ -d ${res_dir} ]]; then
 	echo -e "\nResult directory exists, continuing\n"
+
 else
-	echo -e "\nResult directory does not exists, creating\n"
+	echo -e "\nResult directory does not exist, creating it\n"
 	mkdir ${res_dir}
 fi 
+
+# Checking for output directory
+if [[ -d ${res_dir}/output ]]; then
+	echo -e "\nOutput directory exists, continuing\n"
+
+else
+	echo -e "\nOutput directory does not exist, creating it\n"
+	mkdir ${res_dir}/output
+
+fi
 
 # Telo length assignment
 # Check if df file already created

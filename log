@@ -1,24 +1,42 @@
 
+These are initial variables for telo csv script:
+	
+	
+	Working Directory: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing
+
+        Input fastq1: /home/jaker/pfalci/shared_data/2020_fastq/20200208_combined_minion_3d7_wt.fastq
+
+        Input fastq2: /home/jaker/pfalci/shared_data/2020_fastq/rad51irrB11.merge.fastq
+
+        Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
+
+	Threads: 6	
+
+	
+
+Telo csv file already exists, continuing
+
+
 These are the variables:
         
 
-        Directory for telomere table results: /home/jaker/tmp/202011_telo_homer
+        Directory for telomere table results: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing
 
-	Telomere CSV: /home/jaker/tmp/202011_telo_homer/200sw_telomere_ranges.perc.sorted.csv
+	Telomere CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/200sw_telomere_ranges.perc.sorted.csv
 
-	Input non-sample fasta: /home/jaker/tmp/202011_telo_homer/output/m54333U_200508_174519.Q20.telo.fasta
+	Input non-sample fasta: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta
 
-	Input sampled fasta: /home/jaker/tmp/202011_telo_homer/output/m54333U_200503_055320.Q20.sample.telo.fasta        
+	Input sampled fasta: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/20200208_combined_minion_3d7_wt.sample.telo.fasta        
 
 	Prefix: 202011
 
         Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
 
-        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer
+        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont
 
-        Sample names: s2_wt,s2_irr
+        Sample names: ont_wt,ont_r51irr
 
-	Median values for normalization: 8491,7638
+	Median values for normalization: 2572,1136
 
 	Number of threads: 6
 
@@ -30,63 +48,128 @@ These are the variables:
 Result directory exists, continuing
 
 
-DF file present, skipping length assessment.
+Output directory does not exist, creating it
 
-Truncation file already created, skipping.
-find: ‘/home/jaker/pfalci/201908_telomere_lengths/results/202011_homer/output’: No such file or directory
 
-Starting to align truncated reads to reference at Sun Nov 15 06:55:40 AM EST 2020
+Starting telomere length assessment at Tue Nov 17 05:10:41 AM EST 2020
+
+
+Starting to process telomere reads at: 2020-11-17 05:10:42
+
+ These are the options you submitted: 
+ 	Input CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/200sw_telomere_ranges.perc.sorted.csv 
+ 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont 
+ 	File prefix: 202011 
+ 	Median list: 2572,1136 
+ 	Sample list: ont_wt,ont_r51irr 
+ 	Processors: 6 
+ Are these correct? (y/n) 
+
+Options have been confirmed, continuing... 
+
+Samples need to be renamed, looping over unique samples. 
+*Letters and #s only. 
+*Samples need to be in same order as median values submitted
+Current sample: >20200208_combined_minion_3d7_wt 
+New name: ont_wt
+Current sample: >rad51irrB11 
+New name: ont_r51irr
+
+Are these correct (y/n)
+ Samples names are correct, continuing... 
+ Number of median values matches number of samples, continuing... 
+
+Assigning sample: ont_wt 
+	 Median value: 2572 
+Is this correct (y/n)?
+	 Correct median match, continuing... 
+
+
+Assigning sample: ont_r51irr 
+	 Median value: 1136 
+Is this correct (y/n)?
+	 Correct median match, continuing... 
+
+
+Starting subsampling for all threshold processing.
+
+Subsampling completed.
+
+Starting processing of all thresholds for threshold determination.
+
+	Processing all start thresholds for end threshold: 5Error in { : task 1 failed - "argument is of length zero"
+Calls: %dopar% -> <Anonymous>
+Execution halted
+
+Starting truncation of telomeres at Tue Nov 17 05:17:30 AM EST 2020
+
+
+Starting to process telomere reads at: 2020-11-17 05:17:35
+
+ These are the options you submitted: 
+ 	Input fasta1: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta 
+ 	Input fasta2 sub sample: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/20200208_combined_minion_3d7_wt.sample.telo.fasta 
+ 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont 
+ 	Prefix: 202011 
+ 	Processors: 6 
+ Are these correct? (y/n) 
+
+Options have not been confirmed, exiting. 
+
+
+Starting to align truncated reads to reference at Tue Nov 17 05:18:18 AM EST 2020
 
 
 These are the variables:
         
 
-        This input trucated telomere fasta: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer/202011.dna.trunc.fa.gz
+        This input trucated telomere fasta: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz
 
         Prefix: 202011
 
         Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
 
-        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer
+        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont
 
         Number of threads: 6
 
         
         
+mkdir: cannot create directory ‘/home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/output’: File exists
 
 
-Start minimap2 of trunc at Sun Nov 15 06:55:40 AM EST 2020.
-[M::mm_idx_gen::1.058*1.00] collected minimizers
-[M::mm_idx_gen::1.191*1.49] sorted minimizers
-[M::main::1.191*1.49] loaded/built the index for 16 target sequence(s)
-[M::mm_mapopt_update::1.236*1.47] mid_occ = 281
+Start minimap2 of trunc at Tue Nov 17 05:18:19 AM EST 2020.
+[M::mm_idx_gen::1.328*1.00] collected minimizers
+[M::mm_idx_gen::1.499*1.49] sorted minimizers
+[M::main::1.499*1.49] loaded/built the index for 16 target sequence(s)
+[M::mm_mapopt_update::1.551*1.48] mid_occ = 281
 [M::mm_idx_stat] kmer size: 19; skip: 10; is_hpc: 1; #seq: 16
-[M::mm_idx_stat::1.269*1.46] distinct minimizers: 1401323 (82.07% are singletons); average occurrences: 2.233; average spacing: 7.457
-[M::worker_pipeline::117.589*5.84] mapped 25340 sequences
+[M::mm_idx_stat::1.588*1.47] distinct minimizers: 1401323 (82.07% are singletons); average occurrences: 2.233; average spacing: 7.457
+ERROR: failed to open file '/home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz'
 [M::main] Version: 2.17-r941
-[M::main] CMD: minimap2 -t 6 -ax map-pb /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer/202011.dna.trunc.fa.gz
-[M::main] Real time: 117.614 sec; CPU: 686.336 sec; Peak RSS: 1.134 GB
+[M::main] CMD: minimap2 -t 6 -ax map-pb /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz
+[M::main] Real time: 1.607 sec; CPU: 2.349 sec; Peak RSS: 0.138 GB
 
 
-Start conversion of trunc to bam, sort and index at Sun Nov 15 06:57:38 AM EST 2020.
+Start conversion of trunc to bam, sort and index at Tue Nov 17 05:18:20 AM EST 2020.
 
 
 Coverage and stats follow
 #rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
-chr_1	1	640851	2292	119327	18.6201	22.9156	255	59.5
-chr_2	1	947102	1539	97743	10.3202	9.09802	255	59.7
-chr_3	1	1067971	1742	115865	10.8491	9.78307	255	59.8
-chr_4	1	1200490	1782	131760	10.9755	9.41969	255	49.9
-chr_5	1	1343557	1426	98612	7.33962	5.56698	255	34.9
-chr_6	1	1418242	1303	66820	4.71147	5.15199	255	46.1
-chr_7	1	1445207	1798	147338	10.1949	7.78759	255	59.9
-chr_8	1	1472805	1889	139103	9.44477	7.84749	255	60
-chr_9	1	1541735	2687	114076	7.3992	10.0355	255	59.9
-chr_10	1	1687656	1955	131747	7.80651	7.36096	255	59.7
-chr_11	1	2038340	2242	122956	6.03216	6.75891	255	59.8
-chr_12	1	2271494	1675	127500	5.61305	4.72946	255	60
-chr_13	1	2925236	1509	166708	5.69896	3.22596	255	32.5
-chr_14	1	3291936	1595	107847	3.2761	2.80626	255	60
+chr_1	1	640851	0	0	0	0	0	0
+chr_2	1	947102	0	0	0	0	0	0
+chr_3	1	1067971	0	0	0	0	0	0
+chr_4	1	1200490	0	0	0	0	0	0
+chr_5	1	1343557	0	0	0	0	0	0
+chr_6	1	1418242	0	0	0	0	0	0
+chr_7	1	1445207	0	0	0	0	0	0
+chr_8	1	1472805	0	0	0	0	0	0
+chr_9	1	1541735	0	0	0	0	0	0
+chr_10	1	1687656	0	0	0	0	0	0
+chr_11	1	2038340	0	0	0	0	0	0
+chr_12	1	2271494	0	0	0	0	0	0
+chr_13	1	2925236	0	0	0	0	0	0
+chr_14	1	3291936	0	0	0	0	0	0
 chr_MIT	1	5967	0	0	0	0	0	0
 chr_API	1	34250	0	0	0	0	0	0
 
@@ -94,33 +177,7 @@ chr_API	1	34250	0	0	0	0	0	0
 
 
 
-JOBS DONE..... at Sun Nov 15 06:58:01 AM EST 2020.
+JOBS DONE..... at Tue Nov 17 05:18:21 AM EST 2020.
 
-Assigning endedness at Sun Nov 15 06:58:01 AM EST 2020
+Assigning endedness at Tue Nov 17 05:18:21 AM EST 2020
 
-
-Starting to assign telomere ends based on bam at: 2020-11-15 06:58:09
-
- These are the options you submitted: 
- 	Input bam: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer/output/202011.alignment.sorted.bam 
- 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer 
- 	Prefix: 202011 
- 	Processors: 6 
- Are these correct? (y/n) 
-
-Options have been confirmed, continuing... 
-
-
-Graphing results at Sun Nov 15 07:04:05 AM EST 2020
-
-
-Creating graphs from telomere ends: 2020-11-15 07:04:06
-
- These are the options you submitted: 
- 	Results path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_homer 
- 	Prefix: 202011 
- Are these correct? (y/n) 
-
-Options have been confirmed, continuing... 
-
-JOBS DONE.... at Sun Nov 15 07:05:28 AM EST 2020.

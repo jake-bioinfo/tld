@@ -2,6 +2,12 @@
 # Pull telomeres from irradiated and non-irradiated pfalci, sort, count length compare
 # For new Sequel 2 data
 
+## Create cases for ont vs pb
+## ont read structure: >525bd77d-0100-42b4-9c36-03e6b7f75624 runid=46f564a18d50efd876dc52d7bb1d=FAK79249 protocol_group_id=R51-B11 sample_id=R51-B11
+## PB read structure: >m54334U_200503_055320/1141/ccs
+
+
+
 # Set initial variables
 s1=''
 s2=''

@@ -167,10 +167,9 @@ echo -e "\nThese are initial variables for telo csv script:
 	${initial_vars}
 	"
 
-exit 1
-
 # Create telo length files
 # Check if telo length file already exists
+telo_csv=$( find ${w_dir} -name "200sw_telomere_ranges.perc.sorted.csv" )
 if [[ -f ${telo_csv} ]]; then
         echo -e "\nTelo csv file already exists, continuing\n"
 
@@ -181,15 +180,14 @@ else
 fi
 
 # Assign files based on input directory 
-telo_csv=$( find ${in_dir} -name "200sw_telomere_ranges.perc.sorted.csv" )
-in_fa_s=$( find ${in_dir}/output -name "*.sample.*" | grep -v "lenStats" | grep -v "slide" )
+in_fa_s=$( find ${w_dir}/output -name "*.sample.*" | grep -v "lenStats" | grep -v "slide" )
 pref=$( echo ${in_fa_s} | xargs -L 1 basename | cut -d'.' -f1 )
-in_fa=$( find ${in_dir}/output -name "*.fasta" | grep -v ${pref} )
+in_fa=$( find ${w_dir}/output -name "*.fasta" | grep -v ${pref} )
 
 # Set read out
 readout_vars="
 
-        Directory for telomere table results: $in_dir
+        Directory for telomere table results: $w_dir
 
 	Telomere CSV: $telo_csv
 
@@ -217,9 +215,6 @@ readout_vars="
 echo -e "\nThese are the variables:
         ${readout_vars}
         "
-
-exit 1
-
 # Checking if results directory exists
 if [[ -d ${res_dir} ]]; then
 	echo -e "\nResult directory exists, continuing\n"

@@ -1,4 +1,7 @@
 
+Platform selected is Oxford Nanopore.
+
+
 These are initial variables for telo csv script:
 	
 	
@@ -9,20 +12,313 @@ These are initial variables for telo csv script:
         Input fastq2: /home/jaker/pfalci/shared_data/2020_fastq/rad51irrB11.merge.fastq
 
         Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
+	
+	Platform: ont
 
 	Threads: 6	
 
 	
 
-Telo csv file already exists, continuing
+Telo csv file does not exists, starting telo script
 
+
+Platform set to Oxford Nanopore, continuing...
+
+
+Working directory already created, continuing...
+
+
+These are the variables:
+        
+
+        Sample 1: /home/jaker/pfalci/shared_data/2020_fastq/20200208_combined_minion_3d7_wt.fastq
+
+        Sample 2: /home/jaker/pfalci/shared_data/2020_fastq/rad51irrB11.merge.fastq
+
+	Reference genome: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
+
+	Bin path: /home/jaker/pfalci/201908_telomere_lengths/github/tld/bin
+
+	Platform: ont
+
+        Number of threads: 6
+
+        
+        
+
+Input directory already created.
+
+
+Input file 1 not synced, syncing now.
+
+sending incremental file list
+
+sent 93 bytes  received 12 bytes  210.00 bytes/sec
+total size is 10,791,381,027  speedup is 102,775,057.40
+
+Input file 2 not synced, syncing now.
+
+sending incremental file list
+
+sent 79 bytes  received 12 bytes  182.00 bytes/sec
+total size is 3,219,020,825  speedup is 35,373,855.22
+
+Input reference file not synced, syncing now.
+
+sending incremental file list
+
+sent 99 bytes  received 12 bytes  222.00 bytes/sec
+total size is 23,624,630  speedup is 212,834.50
+
+Output directory already created.
+
+
+tmp directory present, proceeding.
+
+Reference not present, creating it.
+
+Processing index file to create telo.bed.
+
+
+	This is label for 5' + strand: seg_1_5p
+
+	This is label for 5' - strand: seg_1_5n
+
+	This is label for 3' + strand: seg_1_3p
+
+	This is label for 3' - strand: seg_1_5n
+
+	This is chromosome header: chr_1
+
+	This is label for 5' + strand: seg_2_5p
+
+	This is label for 5' - strand: seg_2_5n
+
+	This is label for 3' + strand: seg_2_3p
+
+	This is label for 3' - strand: seg_2_5n
+
+	This is chromosome header: chr_2
+
+	This is label for 5' + strand: seg_3_5p
+
+	This is label for 5' - strand: seg_3_5n
+
+	This is label for 3' + strand: seg_3_3p
+
+	This is label for 3' - strand: seg_3_5n
+
+	This is chromosome header: chr_3
+
+	This is label for 5' + strand: seg_4_5p
+
+	This is label for 5' - strand: seg_4_5n
+
+	This is label for 3' + strand: seg_4_3p
+
+	This is label for 3' - strand: seg_4_5n
+
+	This is chromosome header: chr_4
+
+	This is label for 5' + strand: seg_5_5p
+
+	This is label for 5' - strand: seg_5_5n
+
+	This is label for 3' + strand: seg_5_3p
+
+	This is label for 3' - strand: seg_5_5n
+
+	This is chromosome header: chr_5
+
+	This is label for 5' + strand: seg_6_5p
+
+	This is label for 5' - strand: seg_6_5n
+
+	This is label for 3' + strand: seg_6_3p
+
+	This is label for 3' - strand: seg_6_5n
+
+	This is chromosome header: chr_6
+
+	This is label for 5' + strand: seg_7_5p
+
+	This is label for 5' - strand: seg_7_5n
+
+	This is label for 3' + strand: seg_7_3p
+
+	This is label for 3' - strand: seg_7_5n
+
+	This is chromosome header: chr_7
+
+	This is label for 5' + strand: seg_8_5p
+
+	This is label for 5' - strand: seg_8_5n
+
+	This is label for 3' + strand: seg_8_3p
+
+	This is label for 3' - strand: seg_8_5n
+
+	This is chromosome header: chr_8
+
+	This is label for 5' + strand: seg_9_5p
+
+	This is label for 5' - strand: seg_9_5n
+
+	This is label for 3' + strand: seg_9_3p
+
+	This is label for 3' - strand: seg_9_5n
+
+	This is chromosome header: chr_9
+
+	This is label for 5' + strand: seg_10_5p
+
+	This is label for 5' - strand: seg_10_5n
+
+	This is label for 3' + strand: seg_10_3p
+
+	This is label for 3' - strand: seg_10_5n
+
+	This is chromosome header: chr_10
+
+	This is label for 5' + strand: seg_11_5p
+
+	This is label for 5' - strand: seg_11_5n
+
+	This is label for 3' + strand: seg_11_3p
+
+	This is label for 3' - strand: seg_11_5n
+
+	This is chromosome header: chr_11
+
+	This is label for 5' + strand: seg_12_5p
+
+	This is label for 5' - strand: seg_12_5n
+
+	This is label for 3' + strand: seg_12_3p
+
+	This is label for 3' - strand: seg_12_5n
+
+	This is chromosome header: chr_12
+
+	This is label for 5' + strand: seg_13_5p
+
+	This is label for 5' - strand: seg_13_5n
+
+	This is label for 3' + strand: seg_13_3p
+
+	This is label for 3' - strand: seg_13_5n
+
+	This is chromosome header: chr_13
+
+	This is label for 5' + strand: seg_14_5p
+
+	This is label for 5' - strand: seg_14_5n
+
+	This is label for 3' + strand: seg_14_3p
+
+	This is label for 3' - strand: seg_14_5n
+
+	This is chromosome header: chr_14
+
+	This is label for 5' + strand: seg_15_5p
+
+	This is label for 5' - strand: seg_15_5n
+
+	This is label for 3' + strand: seg_15_3p
+
+	This is label for 3' - strand: seg_15_5n
+
+	This is chromosome header: chr_MIT
+
+	This is label for 5' + strand: seg_16_5p
+
+	This is label for 5' - strand: seg_16_5n
+
+	This is label for 3' + strand: seg_16_3p
+
+	This is label for 3' - strand: seg_16_5n
+
+	This is chromosome header: chr_API
+
+Homer result file found, proceeding.
+
+Motifs file found, proceeding.
+
+This is grep expression: AGGGTTCAGGGTTC|CTTGGGACTTGGGA|GAACCCTGAACCCT|GTTTAGGGTTTAGG|GGATTTGGGATTTG|CCTAAACCCTAAAC|AGGGTTTAGGGTTT|TTTGGGATTTGGGA|AAACCCTAAACCCT|TAAACCTTAAACCT|TCCAAATTCCAAAT|AGGTTTAAGGTTTA|GGGTTCAGGGTTCA|ACTTGGGACTTGGG|TGAACCCTGAACCC
+
+
+This is count grep expression: AGGGTTC|CTTGGGA|GAACCCT|GTTTAGG|GGATTTG|CCTAAAC|AGGGTTT|TTTGGGA|AAACCCT|TAAACCT|TCCAAAT|AGGTTTA|GGGTTCA|ACTTGGG|TGAACCC
+
+
+Telo files exist, not creating them.
+
+
+Both combined telo files exist. Determining number of reads in each. 
+
+
+Number of reads in each telo follows.
+	if12: 4387
+	ni3d7: 16663
+
+
+ni3d7 has more telo reads than if12; therefore, ni3d7 will be downsampled to equal the number of reads in if12.
+
+[INFO][0m sample by number
+[INFO][0m 4381 sequences outputted
+
+All combined telo files exist. 
+
+
+	The subsampled file: 20200208_combined_minion_3d7_wt.sample.telo.fasta
+
+
+	The nonsampled file: rad51irrB11.merge.telo.fasta
+
+
+	The median read length of the subsampled file: 20200208_combined_minion_3d7_wt.sample.telo.fasta 
+		7116
+
+
+	The median read length of the nonsubsampled file: rad51irrB11.merge.telo.fasta 
+		30221
+
+
+20200208_combined_minion_3d7_wt.sample.telo.fasta median length less than 30221, ratio: .23
+
+
+Ratio variable found, determining window size and step.
+
+
+Window size is 200 and window step is 100.
+
+
+Window size and window step were found, starting sliding window.
+
+Variables list
+
+Input file is : /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/20200208_combined_minion_3d7_wt.sample.telo.fasta
+Output file is : /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/20200208_combined_minion_3d7_wt.sample.telo.fasta.slide.fa
+Window size is : 200
+Step size is : 100 
+
+Variables list
+
+Input file is : /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta
+Output file is : /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta.slide.fa
+Window size is : 200
+Step size is : 100 
+
+
+Check for split files was successful, skipping split.
+
+Correct number of files not found. Exiting.
 
 These are the variables:
         
 
         Directory for telomere table results: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing
 
-	Telomere CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/200sw_telomere_ranges.perc.sorted.csv
+	Telomere CSV: 
 
 	Input non-sample fasta: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta
 
@@ -40,7 +336,7 @@ These are the variables:
 
 	Number of threads: 6
 
-	Bin path: /home/jaker/pfalci/201908_telomere_lengths/github/tld/bin/
+	Bin path: /home/jaker/pfalci/201908_telomere_lengths/github/tld/bin
 
         
         
@@ -48,63 +344,20 @@ These are the variables:
 Result directory exists, continuing
 
 
-Output directory does not exist, creating it
+Output directory exists, continuing
 
 
-Starting telomere length assessment at Tue Nov 17 05:10:41 AM EST 2020
+Starting telomere length assessment at Fri Nov 20 10:48:12 AM EST 2020
 
-
-Starting to process telomere reads at: 2020-11-17 05:10:42
-
- These are the options you submitted: 
- 	Input CSV: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/200sw_telomere_ranges.perc.sorted.csv 
- 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont 
- 	File prefix: 202011 
- 	Median list: 2572,1136 
- 	Sample list: ont_wt,ont_r51irr 
- 	Processors: 6 
- Are these correct? (y/n) 
-
-Options have been confirmed, continuing... 
-
-Samples need to be renamed, looping over unique samples. 
-*Letters and #s only. 
-*Samples need to be in same order as median values submitted
-Current sample: >20200208_combined_minion_3d7_wt 
-New name: ont_wt
-Current sample: >rad51irrB11 
-New name: ont_r51irr
-
-Are these correct (y/n)
- Samples names are correct, continuing... 
- Number of median values matches number of samples, continuing... 
-
-Assigning sample: ont_wt 
-	 Median value: 2572 
-Is this correct (y/n)?
-	 Correct median match, continuing... 
-
-
-Assigning sample: ont_r51irr 
-	 Median value: 1136 
-Is this correct (y/n)?
-	 Correct median match, continuing... 
-
-
-Starting subsampling for all threshold processing.
-
-Subsampling completed.
-
-Starting processing of all thresholds for threshold determination.
-
-	Processing all start thresholds for end threshold: 5Error in { : task 1 failed - "argument is of length zero"
-Calls: %dopar% -> <Anonymous>
+Error in getopt_options(object, args) : 
+  Error in getopt(spec = spec, opt = args) : flag "i" requires an argument
+Calls: parse_args -> parse_options -> getopt_options
 Execution halted
 
-Starting truncation of telomeres at Tue Nov 17 05:17:30 AM EST 2020
+Starting truncation of telomeres at Fri Nov 20 10:48:13 AM EST 2020
 
 
-Starting to process telomere reads at: 2020-11-17 05:17:35
+Starting to process telomere reads at: 2020-11-20 10:48:16
 
  These are the options you submitted: 
  	Input fasta1: /home/jaker/pfalci/201908_telomere_lengths/data/202011_ont_processing/output/rad51irrB11.merge.telo.fasta 
@@ -113,71 +366,34 @@ Starting to process telomere reads at: 2020-11-17 05:17:35
  	Prefix: 202011 
  	Processors: 6 
  Are these correct? (y/n) 
+Error in if (opt_check == "y") { : argument is of length zero
+Execution halted
 
-Options have not been confirmed, exiting. 
+Alignment file already created, skipping.
 
-
-Starting to align truncated reads to reference at Tue Nov 17 05:18:18 AM EST 2020
-
-
-These are the variables:
-        
-
-        This input trucated telomere fasta: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz
-
-        Prefix: 202011
-
-        Reference Assembly: /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna
-
-        Results directory: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont
-
-        Number of threads: 6
-
-        
-        
-mkdir: cannot create directory ‘/home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/output’: File exists
+Assigning endedness at Fri Nov 20 10:48:16 AM EST 2020
 
 
-Start minimap2 of trunc at Tue Nov 17 05:18:19 AM EST 2020.
-[M::mm_idx_gen::1.328*1.00] collected minimizers
-[M::mm_idx_gen::1.499*1.49] sorted minimizers
-[M::main::1.499*1.49] loaded/built the index for 16 target sequence(s)
-[M::mm_mapopt_update::1.551*1.48] mid_occ = 281
-[M::mm_idx_stat] kmer size: 19; skip: 10; is_hpc: 1; #seq: 16
-[M::mm_idx_stat::1.588*1.47] distinct minimizers: 1401323 (82.07% are singletons); average occurrences: 2.233; average spacing: 7.457
-ERROR: failed to open file '/home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz'
-[M::main] Version: 2.17-r941
-[M::main] CMD: minimap2 -t 6 -ax map-pb /home/jaker/pfalci/shared_data/refGenomes/ncbi-genomes-2020-01-14/GCA_000002765.3_GCA_000002765_genomic_chr_lab.fna /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/202011.dna.trunc.fa.gz
-[M::main] Real time: 1.607 sec; CPU: 2.349 sec; Peak RSS: 0.138 GB
+Starting to assign telomere ends based on bam at: 2020-11-20 10:48:25
+
+ These are the options you submitted: 
+ 	Input bam: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont/output/202011.alignment.sorted.bam 
+ 	Out path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont 
+ 	Prefix: 202011 
+ 	Processors: 6 
+ Are these correct? (y/n) 
+Error in if (opt_check == "y") { : argument is of length zero
+Execution halted
+
+Graphing results at Fri Nov 20 10:48:25 AM EST 2020
 
 
-Start conversion of trunc to bam, sort and index at Tue Nov 17 05:18:20 AM EST 2020.
+Creating graphs from telomere ends: 2020-11-20 10:48:26
 
-
-Coverage and stats follow
-#rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
-chr_1	1	640851	0	0	0	0	0	0
-chr_2	1	947102	0	0	0	0	0	0
-chr_3	1	1067971	0	0	0	0	0	0
-chr_4	1	1200490	0	0	0	0	0	0
-chr_5	1	1343557	0	0	0	0	0	0
-chr_6	1	1418242	0	0	0	0	0	0
-chr_7	1	1445207	0	0	0	0	0	0
-chr_8	1	1472805	0	0	0	0	0	0
-chr_9	1	1541735	0	0	0	0	0	0
-chr_10	1	1687656	0	0	0	0	0	0
-chr_11	1	2038340	0	0	0	0	0	0
-chr_12	1	2271494	0	0	0	0	0	0
-chr_13	1	2925236	0	0	0	0	0	0
-chr_14	1	3291936	0	0	0	0	0	0
-chr_MIT	1	5967	0	0	0	0	0	0
-chr_API	1	34250	0	0	0	0	0	0
-
-
-
-
-
-JOBS DONE..... at Tue Nov 17 05:18:21 AM EST 2020.
-
-Assigning endedness at Tue Nov 17 05:18:21 AM EST 2020
-
+ These are the options you submitted: 
+ 	Results path: /home/jaker/pfalci/201908_telomere_lengths/results/202011_ont 
+ 	Prefix: 202011 
+ Are these correct? (y/n) 
+Error in if (opt_check == "y") { : argument is of length zero
+Execution halted
+JOBS DONE.... at Fri Nov 20 10:48:26 AM EST 2020.

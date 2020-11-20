@@ -12,15 +12,16 @@ med=''
 t=''
 infq_1=''
 infq_2=''
+plat=''
 
 cur_dir=`pwd`
-bin_path=${cur_dir}/bin/
+bin_path=${cur_dir}/bin
 
 # Set help dialog
 help_inf="
 
         Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
-			    -d <result_dir> -s <sample_names> -m <medians> -t <threads>
+			    -d <result_dir> -s <sample_names> -m <medians> -n <platform> -t <threads>
 
                 -h|--help       	Prints out this dialogiue
 		
@@ -34,7 +35,9 @@ help_inf="
 
                 -r|--reference  	Reference assembly
 
-                -d|--result_dir 	full path to project results direcotry
+                -d|--result_dir 	Full path to project results direcotry
+
+		-n|--platform		Select sequencing platform, ont or pb, pb is default
 
 		-s|--sample_names	samples names, ex. \"wt,irr,KO,...\"
 
@@ -53,7 +56,8 @@ if [[ -z $@ ]]; then
 fi
 
 # Read options
-ARGS=$( getopt -o h::w:a:f:p:r:d:s:m:t: -l "help::,work_dir:,infq1:infq2:,prefix:,reference:,result_dir:,sample_names:,medians:,threads" -n "telo_pipe.sh" -- "$@" );
+ARGS=$( getopt -o h::w:a:f:p:r:d:n:s:m:t: -l "help::,work_dir:,infq1:infq2:,prefix:,reference:\
+,result_dir:,platform:,sample_names:,medians:,threads" -n "telo_pipe.sh" -- "$@" );
 
 
 eval set -- "$ARGS";
@@ -108,6 +112,13 @@ while true; do
                                 shift;
                         fi
                 ;;
+                -n|--platform)
+                        shift;
+                        if [[ -n $1 ]]; then
+                                plat=$1;
+                                shift;
+                        fi
+                ;;
 		-s|--sample_names)
                         shift;
                         if [[ -n $1 ]]; then
@@ -143,6 +154,19 @@ if [[ -z $w_dir || -z $pre || -z $ref || -z $res_dir \
         exit 1;
 fi
 
+# Check sequencing platform
+if [[ $plat = "pb" ]]; then
+	echo -e "\nPlatform selected is PacBio.\n"
+
+elif [[ $plat = "ont" ]]; then
+	echo -e "\nPlatform selected is Oxford Nanopore.\n"
+
+elif [[ -z $plat ]]; then
+	echo -e "\nPlatform not selected, defaulting to Pacbio.\n"
+	plat='pb'
+
+fi
+
 # Check if threads set
 if [[ -z $t ]]; then 
 	echo -e "\nThreads not set, setting to max-2."
@@ -159,6 +183,8 @@ initial_vars="
         Input fastq2: $infq_2
 
         Reference Assembly: $ref
+	
+	Platform: $plat
 
 	Threads: $t	
 "
@@ -175,7 +201,8 @@ if [[ -f ${telo_csv} ]]; then
 
 else
         echo -e "\nTelo csv file does not exists, starting telo script\n"
-        ${bin_path}/telo_homer.sh -s ${infq_1} -a ${infq_2} -w ${w_dir} -r ${ref} -t ${t}
+        ${bin_path}/telo_homer.sh -s ${infq_1} -a ${infq_2} -w ${w_dir} \
+		-r ${ref} -t ${t} -b ${bin_path} -p ${plat}
 
 fi
 

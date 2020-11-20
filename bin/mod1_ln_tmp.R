@@ -157,7 +157,10 @@ for (i in 1:length(unique(df$s.name))) {
     cat("\n\t Incorrect median match, exiting.\n\n")
     q(save = "no", status = 4, runLast = FALSE)
   }
-}
+  df$read.median[df$s.name==unique(df$s.name)[i]] <- med_vec[[1]][i]
+  
+  
+  }
 
 # Convert median to numeric
 df$read.median <- as.numeric(df$read.median)

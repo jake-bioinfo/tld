@@ -1,6 +1,8 @@
 #!/bin/bash
 # Align truncated pb reads to reference with minimap2
 
+## Add pb or ont platform option and modify mm cmd
+
 # Activate bioconda env
 source ~/anaconda3/etc/profile.d/conda.sh
 conda activate ddocent_env
@@ -11,11 +13,12 @@ in_t_fa=''
 pre=''
 res_dir=''
 ref=''
+plat=''
 
 # Set help info
 help_inf="
 	
-	Usage: mm2_pbalign.sh -i <input> -r <reference> -p <prefix> -d <result_dir> -t <threads>
+	Usage: mm2_pbalign.sh -i <input> -r <reference> -p <prefix> -d <result_dir> -t <threads> -n <platform>
 		
 		-h|--help	Prints out this dialogue
 		
@@ -25,11 +28,13 @@ help_inf="
 		
 		-r|--reference	Reference assembly
 		
-		-d|--result_dir	full path to project results direcotry
+		-d|--result_dir	Full path to project results direcotry
+
+		-n|--platform	Select platform for experiment, pb or ont, default is pb
 		
 		-t|--threads	integer for number of threads to use for operation
 
-		**		all options are !required!
+		**		all options are except -n !required!
 
 "
 
@@ -40,7 +45,7 @@ if [[ -z $@ ]]; then
 fi
 
 # Read options
-ARGS=$( getopt -o h::i:p:r:d:t: -l "help::,input:,prefix:,reference:,result_dir:,threads" -n "mm2_pbalign.sh" -- "$@" );
+ARGS=$( getopt -o h::i:p:r:d:t:n: -l "help::,input:,prefix:,reference:,result_dir:,threads:,platform:" -n "mm2_pbalign.sh" -- "$@" );
 
 
 eval set -- "$ARGS";
@@ -88,6 +93,13 @@ while true; do
 				shift;
 			fi
 		;;
+                -n|--platform)
+                        shift;
+                        if [[ -n $1 ]]; then
+                                plat=$1;
+                                shift;
+                        fi
+                ;;
                 --)
                 shift;
                 break;
@@ -99,6 +111,19 @@ done
 if [[ -z $in_t_fa || -z $pre || -z $ref || -z $res_dir || -z $t ]]; then
         echo -e "\nRequired options (-i,-p,-r,-d,-t) were not supplied, exiting\n"
         exit 1;
+fi
+
+# Check platform
+if [[ $plat = "pb" ]]; then
+        echo -e "\nPlatform selected is PacBio.\n"
+
+elif [[ $plat = "ont" ]]; then
+        echo -e "\nPlatform selected is Oxford Nanopore.\n"
+
+elif [[ -z $plat ]]; then
+        echo -e "\nPlatform not selected, defaulting to Pacbio.\n"
+        plat='pb'
+
 fi
 
 # Set read out
@@ -114,6 +139,8 @@ readout_vars="
 
         Number of threads: $t
 
+	Platform: $plat
+
         "
 # Echo vars for authentication
 echo -e "\nThese are the variables:
@@ -128,8 +155,8 @@ mkdir ${work_dir}/output
 export output=${work_dir}/output
 
 # Run minimap2 and convert to bam
-echo -e "\n\nStart minimap2 of trunc at `date`."
-minimap2 -t ${threads} -ax map-pb ${ref} ${in_t_fa} > ${output}/${pre}.alignment.sam
+echo -e "\n\nStart minimap2 of trunc data at `date`."
+minimap2 -t ${threads} -ax map-${plat} ${ref} ${in_t_fa} > ${output}/${pre}.alignment.sam
 
 echo -e "\n\nStart conversion of trunc to bam, sort and index at `date`."
 samtools view -S -b ${output}/${pre}.alignment.sam > ${output}/${pre}.alignment.bam

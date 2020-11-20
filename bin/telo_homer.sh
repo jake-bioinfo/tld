@@ -2,22 +2,18 @@
 # Pull telomeres from irradiated and non-irradiated pfalci, sort, count length compare
 # For new Sequel 2 data
 
-## Create cases for ont vs pb
-## ont read structure: >525bd77d-0100-42b4-9c36-03e6b7f75624 runid=46f564a18d50efd876dc52d7bb1d=FAK79249 protocol_group_id=R51-B11 sample_id=R51-B11
-## PB read structure: >m54334U_200503_055320/1141/ccs
-
-
-
 # Set initial variables
 s1=''
 s2=''
 ref=''
 w_dir=''
+plat=''
+bd=''
 
 # Set help dialog
 help_inf="
 
-        Usage: telo_homer.sh -s <sample_1> -a <sample_2> -w <work_dir> -r <reference> -t <threads>
+        Usage: telo_homer.sh -s <sample_1> -a <sample_2> -w <work_dir> -r <reference> -p <platform> -b <binpath> -t <threads>
 
                 -h|--help               Prints help for telo_homer
 
@@ -28,6 +24,10 @@ help_inf="
 		-w|--work_dir		Working directory
 
                 -r|--reference          Reference genome
+
+		-b|--binpath		Path to necessary scripts
+	
+		-p|--platform		Takes arguements ont or pb, default is pb
 
                 -t|--threads            integer for number of threads to use for operation, DEFAULT = max-2
 
@@ -42,7 +42,8 @@ if [[ -z $@ ]]; then
 fi
 
 # Read options
-ARGS=$( getopt -o h::s:a:w:r:t: -l "help::,sample_1:,sample_2:,work_dir:,reference:,threads" -n "telo_pipe.sh" -- "$@" );
+ARGS=$( getopt -o h::s:a:w:r:b:p:t: -l "help::,sample_1:,sample_2:,work_dir:,reference:,\
+binpath:,platform:,threads:" -n "telo_pipe.sh" -- "$@" );
 
 
 eval set -- "$ARGS";
@@ -83,12 +84,26 @@ while true; do
                                 shift;
                         fi
                 ;;
+                -b|--binpath)
+                        shift;
+                        if [[ -n $1 ]]; then
+                                bd=$1;
+                                shift;
+                        fi
+                ;;
+		-p|--platform)
+			shift;
+			if [[ -n $1 ]]; then
+				plat=$1;
+				shift
+			fi 
+		;;
 		-t|--threads)
                         shift;
                         if [[ -n $1 ]]; then
                                 t=$1;
                                 shift;
-                        fi
+                       fi
                 ;;
                 --)
                 shift;
@@ -98,15 +113,29 @@ while true; do
 done
 
 
-#Check required arguements are met
-if [[ -z $s1 || -z $s2 || -z $ref || -z ${w_dir} ]]; then
-        echo -e "\nRequired options (-s,-a,-w,-r) were not supplied, exiting\n"
+# Check required arguements are met
+if [[ -z $s1 || -z $s2 || -z $ref || -z ${w_dir} || -z ${bd} ]]; then
+        echo -e "\nRequired options (-s,-a,-w,-r,-b) were not supplied, exiting\n"
         exit 1;
+fi
+
+# Check platform
+if [[ $plat = "pb" ]]; then
+	echo -e "\nPlatform set to PacBio, continuing...\n"
+
+elif [[ $plat = "ont" ]]; then 
+	echo -e "\nPlatform set to Oxford Nanopore, continuing...\n"
+
+elif [[ -z $plat ]]; then
+	echo -e "\nPlatform not specified, default is PacBio, continuing...\n"
+        plat="pb"
+
 fi
 
 # Check for working directory
 if [[ -d ${w_dir} ]]; then
 	echo -e "\nWorking directory already created, continuing...\n"
+	cd ${w_dir};
 
 else
 	echo -e "\nWorking directory not created, creating it\n"
@@ -129,6 +158,10 @@ readout_vars="
 
 	Reference genome: $ref
 
+	Bin path: $bd
+
+	Platform: $plat
+
         Number of threads: $t
 
         "
@@ -146,6 +179,7 @@ s1floc=${s1}
 s2floc=${s2}
 reffloc=${ref}
 export TMP=`pwd`
+export bin_path=${bd}
 
 # Set number of threads
 threads=${t}
@@ -375,8 +409,8 @@ if [[ "${ck_tFa}" == 3 ]]; then
 	ns_fa=$( ls ${out} | egrep -v "${ss_fa_pre}" | egrep "fasta" | egrep -v "lenStat" | egrep -v "slide.fa" )
 	echo -e "\n\tThe nonsampled file: ${ns_fa}\n" 
 	
-	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ss_fa} | cut -f2 | r_fasta_basicStats.r > ${out}/${ss_fa}.lenStats
-	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ns_fa} | cut -f2 | r_fasta_basicStats.r > ${out}/${ns_fa}.lenStats
+	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ss_fa} | cut -f2 | ${bin_path}/r_fasta_basicStats.r > ${out}/${ss_fa}.lenStats
+	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ns_fa} | cut -f2 | ${bin_path}/r_fasta_basicStats.r > ${out}/${ns_fa}.lenStats
 
 	ss_medl=$( cat ${out}/${ss_fa}.lenStats | egrep "median" | cut -d' ' -f 3 | awk '{print int($1+0.5)}' )
 	ns_medl=$( cat ${out}/${ns_fa}.lenStats | egrep "median" | cut -d' ' -f 3 | awk '{print int($1+0.5)}' )
@@ -390,6 +424,14 @@ if [[ "${ck_tFa}" == 3 ]]; then
 		ns_ss_ratio=$( echo "scale=2; ${ns_medl}/${ss_medl}" | bc )
 		echo -e "\n${ns_fa} median length less than ${ss_fa}, ratio: ${ns_ss_ratio}\n" 
 	fi
+
+	# If ont, replace hyphens in read name
+	if [[ $plat = "ont" ]]; then
+		sed -i "s: .*::g" ${out}/${ss_fa}
+		sed -i "s: .*::g" ${out}/${ns_fa}
+		sed -i "s:-:_:g" ${out}/${ss_fa}
+		sed -i "s:-:_:g" ${out}/${ns_fa}
+	fi 
 
 else 
 	echo -e "\nAll combined telo files do not exist. Exiting. \n"
@@ -416,7 +458,7 @@ if [[ ! -z "${win_sz}" && ! -z "${win_st}" ]]; then
 
 	echo -e "\nWindow size and window step were found, starting sliding window.\n" 
 	echo -e "${out}/${ss_fa}\n${out}/${ns_fa}" > ${TMP}/slide.fofn
-	parallel -k -j 2 sliding_window.py -i {} -o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
+	parallel -k -j 2 ${bin_path}/sliding_window.py -i {} -o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
 else
 
 	echo -e "\nWindow size and window step were not found, exiting.\n"; exit 1
@@ -431,7 +473,7 @@ if (( "${ck_tmp_f}" < 50000 )); then
 
 		echo -e "\nBoth slide files found, starting to parse files.\n"
 		ls ${out} | egrep "slide" > ${TMP}/split.fofn
-		parallel -k -j ${threads} split_fasta.sh -i ${out}/{} -o ${t_dir} :::: ${TMP}/split.fofn
+		parallel -k -j ${threads} ${bin_path}/split_fasta.sh -i ${out}/{} -o ${t_dir} :::: ${TMP}/split.fofn
 
 	else
 
@@ -459,7 +501,7 @@ if [[ "${file_num}" == "${combine_ln}" ]]; then
 
 	# Run telo percent count 
 	echo -e "\nThis is parallel cmd:\n\tparallel -k -j ${threads} ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn" 
-	parallel -k -j ${threads} ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
+	parallel -k -j ${threads} ${bin_path}/ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
 else 
 	echo -e "\nCorrect number of files not found. Exiting."
 	exit 1

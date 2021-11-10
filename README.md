@@ -35,12 +35,12 @@ $ echo \
 $ sudo apt-get update
 $ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
-```sh
+```
 
 #### Download TLD docker image
 ```sh
 $ docker pull jreed0pbsb/tld:latest
-```sh
+```
 
 ## Usage
 In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```sh $ tld/data/fastq ```sh and the reference files must go in ```sh $ tld/data/ref ```sh. 
@@ -49,3 +49,4 @@ In order to use this application you must first move your data files into the da
 #### Initialize docker container 
 ```sh
 $ docker run -d --name <name_of_container> <name_of_img>
+```

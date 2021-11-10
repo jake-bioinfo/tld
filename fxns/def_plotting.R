@@ -1,8 +1,8 @@
 # Setting default theme for plotting
 tx_fam <- "HersheySans"
 def_th <- theme(
+  
   # Hide panel borders and remove grid lines
-  #panel.border = element_blank(),
   panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(),
   axis.line = element_line(colour = "black"),
@@ -17,11 +17,13 @@ def_th <- theme(
                             face = "plain", 
                             hjust = 0,
                             family = tx_fam,
-                            margin = margin(t = 0, r = 0, b = 1, l = 0, unit = "cm")),
+                            margin = margin(t = 0, r = 0, b = 1, 
+                                            l = 0, unit = "cm")),
   title = element_text(size = 35, 
                        face = "plain", 
                        hjust = 0.5,
                        family = tx_fam), 
+  
   # Adding axis title margins
   axis.text.x = element_text(angle = 90, margin = margin(t = 0.3, unit = "cm")),
   axis.title.x = element_text(margin = margin(0.5, 0, 0, 0, unit = "cm"), 
@@ -97,8 +99,6 @@ def.bar <- function(df, title, x.lab, y.lab,
   geom_bar(stat = "identity", position = position_dodge()) +
   scale_x_discrete(labels = as.character(df$s.id), breaks = df$s.id) +
   facet_wrap( ~ chr.end) 
-  
-  #bar <- bar + hist_lb(title, x.lab, y.lab, color.lab, color.lab)
   
   bar <- bar + hist_lb(title, x.lab, y.lab, color.lab, color.lab) +
     def_th +

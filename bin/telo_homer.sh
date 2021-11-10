@@ -1,6 +1,8 @@
 #!/bin/bash
-# Pull telomeres from irradiated and non-irradiated pfalci, sort, count length compare
-# For new Sequel 2 data
+# Pull telomeres from samples, sort, count percent 
+# of telomere content based on 200 bp sliding window
+
+# This application works best with PacBio Sequel II data
 
 # Set initial variables
 s1=''
@@ -13,7 +15,7 @@ bd=''
 el=''
 he=''
 
-# Set help dialog
+# Set help dialog and usage
 help_inf="
 
         Usage: telo_homer.sh -s <sample_1> -a <sample_2> -w <work_dir> -r <reference> -p <platform> -b <binpath> -t <threads>
@@ -235,14 +237,19 @@ fi
 ch_fq1=$( realpath ${s1} | egrep "*.fastq" )
 ch_fq2=$( realpath ${s2} | egrep "*.fastq" )
 
-# Check reference for fna or fasta
+# Check reference for fna, fa or fasta
 ch_fna=$( echo ${ref} | egrep "*.fna" );
+ch_fa=$( echo ${ref} | egrep "*.fa" );
 
 if [[ -n ${ch_fna} ]]; then
 	ch_ref=$( realpath ${ref} | egrep "*.fna" )
+elif [[ -n ${ch_fa} ]]; then
+	ch_ref=$( realpath ${ref} | egrep "*.fa" )
 else
 	ch_ref=$( realpath ${ref} | egrep "*.fasta" )
 fi
+
+
 
 if [[ -n ${ch_fq1} ]]; then 
 	echo -e "\nFastq for sample 1 found, continuing."
@@ -283,8 +290,18 @@ fi
 # of reference for future analysis
 if [[ -z ${he} ]]; then
 	echo -e "\nHigher eukaryote option not set, continuing."
+
+	# Remove Ns from sequence
+	seqkit replace -j ${threads} -p "^N+|N+$" -r "" -s ${ref} > ${ref}_tmp
+	mv ${ref}_tmp ${ref}
 else
 	echo -e "\nHigher eukaryote option set, reducing size of reference for future analysis"
+	
+	# Remove Ns from sequence
+	seqkit replace -j ${threads} -p "^N+|N+$" -r "" -s ${ref} > ${ref}_tmp
+	mv ${ref}_tmp ${ref}
+	
+	# Take only the ends of the reference and concat
 	seqkit concat <(seqkit subseq -r 1:1000000 ${ref}) <(seqkit subseq -r -1000000:-1 ${ref}) \
 		> ${in}/mod_${reff_bn}.${reff_bn_s}
 	export ref=${in}/mod_${reff_bn}.${reff_bn_s}
@@ -322,20 +339,15 @@ while IFS= read -r l; do
 
 	# Create labels
 	lab_p_5="seg_${i}_5p"
-	echo -e "\n\tThis is label for 5' + strand: ${lab_p_5}"
 
 	lab_n_5="seg_${i}_5n"
-	echo -e "\n\tThis is label for 5' - strand: ${lab_n_5}"
 
         lab_p_3="seg_${i}_3p"
-        echo -e "\n\tThis is label for 3' + strand: ${lab_p_3}"
 
         lab_n_3="seg_${i}_5n"
-        echo -e "\n\tThis is label for 3' - strand: ${lab_n_3}"
 	
 	# Read chromosome header
 	chr_head=$( echo -e  "${l}" | cut -f1 ); 
-	echo -e "\n\tThis is chromosome header: ${chr_head}"
 	
 	# Print 5' + lines to telo.bed file
 	echo -e "${lab_p_5}\t${chr_head}\t0\t${el}\t0" >> ${out}/telo.bed
@@ -364,7 +376,8 @@ check_homer=$( ls ${out} | egrep "homerMotifs.all.motifs" );
 
 	# Run Homer on reference
 	findMotifsGenome.pl ${out}/telo.bed ${ref} \
-	${out} -len ${mot} -noweight -S ${mot2} -maxN 2 -preparse -p ${threads}; } || \
+	${out} -len ${mot} -noweight -S ${mot2} -e 0.000001 \
+	-maxN 2 -preparse -p ${threads}; } || \
 { echo -e "\nHomer result file found, proceeding."; }
 
 # Parse homer output
@@ -412,9 +425,7 @@ check_motif=$( ls ${out} | egrep "temp.motifs" );
 
 # check grep expression
 grep_exp=$( echo "${grep_exp}" | head -c -2 );
-echo -e "\nThis is grep expression: ${grep_exp}\n";
 ct_grep=$( echo "${ct_grep}" | sed "s:.$::g" );
-echo -e "\nThis is count grep expression: ${ct_grep}\n";
 
 # Downsample fastq files based on GB
 # Check if downsampled file already exists
@@ -491,14 +502,10 @@ ck_tFa=$( ls ${out} | egrep ".telo.*fasta" | egrep -v "lenStats" | egrep -v "sli
 if [[ "${ck_tFa}" == 2 ]]; then
 	echo -e "\nAll combined telo files exist. \n"
 	ss_fa=$( ls ${out} | egrep "*.s.telo.fasta" | egrep -v "lenStat" | egrep -v "slide.fa" )
-	echo -e "\nThis is ssfa: ${ss_fa}"
 	
 	ss_fa_pre=$( basename -s .s.telo.fasta ${ss_fa} )
-	echo -e "\nThis is ssfapre: ${ss_fa_pre}"
 
-	echo -e "\n\tThe subsampled file: ${ss_fa}\n"
 	ns_fa=$( ls ${out} | egrep -v "${ss_fa_pre}" | egrep "fasta" | egrep -v "lenStat" | egrep -v "slide.fa" )
-	echo -e "\n\tThe nonsampled file: ${ns_fa}\n" 
 	
 	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ss_fa} | cut -f2 | ${bin_path}/r_fasta_basicStats.r > ${out}/${ss_fa}.lenStats
 	bioawk -c fastx '{ print $name, length($seq) }' < ${out}/${ns_fa} | cut -f2 | ${bin_path}/r_fasta_basicStats.r > ${out}/${ns_fa}.lenStats
@@ -562,9 +569,9 @@ fi
 if [[ ! -z "${win_sz}" && ! -z "${win_st}" ]]; then
 
 	echo -e "\nWindow size and window step were found, starting sliding window.\n" 
-	#echo -e "${out}/${ss_fa}\n${out}/${ns_fa}" > ${TMP}/slide.fofn
 	echo -e "${out}/${sample1}\n${out}/${sample2}" > ${TMP}/slide.fofn
-	parallel -k -j 2 ${bin_path}/sliding_window.py -i {} -o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
+	parallel --bar -k -j ${threads} ${bin_path}/sliding_window.py -i {} \
+		-o {}.slide.fa -w ${win_sz} -s ${win_st} :::: ${TMP}/slide.fofn
 else
 
 	echo -e "\nWindow size and window step were not found, exiting.\n"; exit 1
@@ -578,9 +585,9 @@ if (( "${ck_tmp_f}" < 50000 )); then
 	if [[ -f ${out}/${ss_fa}.slide.fa && -f ${out}/${ns_fa}.slide.fa ]]; then
 
 		echo -e "\nBoth slide files found, starting to parse files.\n"
-		#ls ${out} | egrep "slide" > ${TMP}/split.fofn
 		echo -e "${sample1}.slide.fa\n${sample2}.slide.fa" > ${TMP}/split.fofn
-		parallel -k -j ${threads} ${bin_path}/split_fasta.sh -i ${out}/{} -o ${t_dir} :::: ${TMP}/split.fofn
+		parallel --bar -k -j ${threads} ${bin_path}/split_fasta.sh -i ${out}/{} \
+			-o ${t_dir} :::: ${TMP}/split.fofn
 
 	else
 
@@ -604,8 +611,8 @@ if [[ "${file_num}" == "${combine_ln}" ]]; then
 	ls ${t_dir} | egrep "*.fa" > ${TMP}/fa.fofn
 
 	# Run telo percent count 
-	echo -e "\nThis is parallel cmd:\n\tparallel -k -j ${threads} ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn" 
-	parallel -k -j ${threads} ${bin_path}/ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} -o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
+	parallel --bar -k -j ${threads} ${bin_path}/ct_telo.sh -g \"${ct_grep}\" -i ${t_dir}/{} \
+		-o ${TMP}/telomere_ranges.perc.csv :::: ${TMP}/fa.fofn
 else 
 	echo -e "\nCorrect number of files not found. Exiting."
 	exit 1
@@ -620,5 +627,3 @@ tail -n +2 ${TMP}/telomere_ranges.perc.csv | egrep ${sm1} | sort >> tmp.csv
 tail -n +2 ${TMP}/telomere_ranges.perc.csv | egrep ${sm2} | sort >> tmp.csv
 mv ${TMP}/tmp.csv ${TMP}/200sw_telomere_ranges.perc.sorted.csv
 rm -rf ${TMP}/tmp
-
-echo -e "\nJOBS DONE... at `date`."

@@ -13,9 +13,6 @@ suppressPackageStartupMessages(require(doParallel))
 source('tld/fxns/truncation.R')
 source('tld/fxns/stopQuietly.R')
 
-#source('/home/jake/tmp/docker/test_data/tld/fxns/truncation.R')
-#source('/home/jake/tmp/docker/test_data/tld/fxns/stopQuietly.R')
-
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE, 
                                 help = "Print extra output [default]"),                                      
@@ -39,17 +36,9 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
 # otherwise if options not found on command line then set defaults,                  
 opt <- parse_args(OptionParser(option_list=option_list))                             
 
-### Temporary troubleshooting options
-# opt <- list()
-# opt$prefix <- 'dockTest'
-# opt$out_path <- '~/tmp/docker/test_data/tld/data/o_dir'
-# opt$in_fasta <- '~/tmp/docker/test_data/tld/data/w_dir/output/alappa.telo.fasta'
-# opt$in_sub_fasta <- '~/tmp/docker/test_data/tld/data/w_dir/output/ptrog.sample.telo.fasta'
-# opt$threads <- 7
-
 # print some progress messages to stderr if \"quietly\" wasn't requested             
 if ( opt$verbose ) {                                                                 
-  write(paste("\nStarting to process telomere reads at:", 
+  write(paste("\nStarting to truncate telomere reads for alignment at:", 
               Sys.time(), collapse = ""), stderr())         
 }                                                                                    
 
@@ -71,15 +60,6 @@ cat("\n These are the options you submitted: \n",
     paste("Are these correct? (y/n)", collapse = ""), "\n"
 )
 
-# Exit if user does not confirm variables
-opt_check <- readLines(con = "stdin", n = 1)
-if ( opt_check == "y") {
-  cat("\nOptions have been confirmed, continuing... \n\n")
-} else {
-  cat("\nOptions have not been confirmed, exiting. \n\n")
-  q(save = "no", status = 1, runLast = FALSE)
-}
-
 # Setup parallel environment
 cl <- makeCluster(noCores)
 registerDoParallel()
@@ -95,22 +75,24 @@ result.df <- readRDS(result.df.f)
 result.df <- result.df[result.df$norm=="normalized", ]
 
 # wt nl
-pf3d7.f <- opt$in_fasta
-pf3d7.seq <- readDNAStringSet(pf3d7.f, format = "fasta")
+s1.f <- opt$in_fasta
+s1.seq <- readDNAStringSet(s1.f, format = "fasta")
 
 # irradiated nl
-pfIrr.f <- opt$in_sub_fasta
-pfIrr.seq <- readDNAStringSet(pfIrr.f, format = "fasta")
+s2.f <- opt$in_sub_fasta
+s2.seq <- readDNAStringSet(s2.f, format = "fasta")
 
 # Truncate sequences
+# First remove some characters from sequence header
 res.seq.ls <- list()
-seq.ls <- DNAStringSetList(pf3d7.seq, pfIrr.seq)
+seq.ls <- DNAStringSetList(s1.seq, s2.seq)
 seq.ls <- unlist(seq.ls)
 names(seq.ls) <- gsub(pattern = " RQ.*", replacement = "", names(seq.ls))
 names(seq.ls) <- gsub(pattern = "/", replacement = "", names(seq.ls))
 names(seq.ls) <- gsub(pattern = " .*", replacement = "", names(seq.ls))
 res.seq.df <- data.frame()
 
+# Truncate sequences
 res.seq.df <- ddply(result.df,
                     .(r.name, s.name, trunc.start, 
                       trunc.end, telomere.end, tel.length, 

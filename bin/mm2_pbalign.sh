@@ -34,7 +34,7 @@ help_inf="
 
 "
 
-# Checkf for any args
+# Check for any args, print help if no args supplied
 if [[ -z $@ ]]; then
 	echo -e "$help_inf"
 	exit 1
@@ -109,6 +109,12 @@ if [[ -z $in_t_fa || -z $pre || -z $ref || -z $res_dir || -z $t ]]; then
         exit 1;
 fi
 
+# Check if output file already created
+if [[ -f ${output}/${pre}.alignment.sorted.bam ]]; then 
+	echo -e "\nOutput file ${output}/${pre}.alignment.sorted.bam already exists, exiting."
+	exit 2; 
+fi
+
 # Check platform
 if [[ $plat = "pb" ]]; then
         echo -e "\nPlatform selected is PacBio.\n"
@@ -171,5 +177,3 @@ samtools coverage ${output}/${pre}.alignment.sorted.bam
 
 echo -e "\n\n"
 samtools stats ${output}/${pre}.alignment.sorted.bam > ${output}/${pre}.alignment.stats
-
-echo -e "\n\nJOBS DONE..... at `date`."

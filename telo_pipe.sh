@@ -17,6 +17,7 @@ plat=''
 el=''
 he=''
 
+# Determine path of script and set bin path
 cur_dir=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 bin_path=${cur_dir}/bin
 
@@ -58,7 +59,7 @@ help_inf="
 
 "
 
-# Checkf for any args
+# Check for any args
 if [[ -z $@ ]]; then
         echo -e "$help_inf"
         exit 1
@@ -417,5 +418,3 @@ fi
 
 echo -e "\nGraphing results at `date`\n"
 ${bin_path}/mod4_graphing.R -r ${res_dir} -p ${pre} 
-
-echo -e "JOBS DONE.... at `date`."

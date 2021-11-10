@@ -1,6 +1,6 @@
 #!/bin/bash
 # Reads fasta and creates csv file with read name, range of sequence in read analyzed, % of range 
-# which contains plasmodium falciparum telomere repeats.
+# which contains telomere repeats.
 
 # Get opts variables initialization
 input_f=''
@@ -83,12 +83,7 @@ if [[ -z $input_f ]]; then
         exit 1;
 fi
 
-#echo -e "\nInput file is: $input_f
-
-#Output file is: $out_f
-#"
-
-# Check if out file exists
+# Check if out file does not exist, create it if it doesn't
 if [[ ! -f ${out_f} ]]; then
 
 	echo -e "${out_f} does not exist, creating it.\n";
@@ -102,26 +97,20 @@ do
     if [[ ${line:0:1} == '>' ]]; then
 	# Get read information and write
 	sample_nm=$( echo -e "${line}" | awk -F'__' '{print $1}' )
-        read_nm=$( echo -e "${line#>}" | sed -e "s:/::g" | sed -e "s: :_:g" | sed -e "s:|:_:g" | sed -e "s/:/-/g" | awk -F'__' '{print $2}' )
+        read_nm=$( echo -e "${line#>}" | sed -e "s:/::g" | sed -e "s: :_:g" \
+		| sed -e "s:|:_:g" | sed -e "s/:/-/g" | awk -F'__' '{print $2}' )
 	rng_st=$( echo "${read_nm}" | cut -d'-' -f 2 )
 	rng_end=$( echo ${read_nm} | cut -d'-' -f 3 | sed "s:.fa::" ) 
 	out_ln1=$( echo "${sample_nm},${read_nm},${rng_st},${rng_end}" )
-	#echo -e "This is line name: $line"
 
     elif [[ ${line:0:4} != 'Read' ]]; then
 	# Count sequence length, telomere repeats in sequence, telomere percent
         seq=$( echo ${line} )
 	seq_ln=$( echo ${seq} | egrep -o "." | tr -d '\n' | wc -c )
-	#echo -e "\tSeq length:$seq_ln\n"
-	#echo -e "\tGrep pattern: ${grep_x}\n"
 	telo_ct=$( echo ${seq} | egrep -o "${grep_x}" \
 	| tr -d '\n' | wc -c )
-	#echo -e "\tTelomere count:$telo_ct\n"
 	telo_perc=$( echo "scale=2; (${telo_ct}*100)/${seq_ln}" | bc )
-	#echo -e "\tTelomere percentage:$telo_perc\n"
 	out_ln2=$( echo "${seq_ln},${telo_ct},${telo_perc}" )
-	#echo -e "\tOut ln2:$out_ln2\n"	
-
     fi
 
 done < ${input_f}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# Import libraries
 import os, os.path, sys, getopt
 from Bio import SeqIO
 
@@ -45,7 +46,7 @@ def main(argv):
   print ('Window size is :', win_sz)
   print ('Step size is :', step_sz, '\n')
 
-# Sliding window work
+# Create sliding window
   with open(out_file,"w") as f:
     for seq_record in SeqIO.parse(in_file, "fasta"):
       i = 0

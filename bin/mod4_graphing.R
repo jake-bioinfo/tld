@@ -14,8 +14,6 @@ suppressPackageStartupMessages(require(plyr))
 # Sourcing useful functions
 source('/tld/fxns/def_plotting.R')
 
-#source('/home/jake/tmp/docker/test_data/tld/fxns/def_plotting.R') 
-
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
                                 help = "Print extra output [default]"),
@@ -32,13 +30,6 @@ option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", def
 # otherwise if options not found on command line then set defaults,
 opt <- parse_args(OptionParser(option_list=option_list))
 
-## Tmp variables
- # opt <- list()
- # opt$res_path <- '/home/jake/tmp/docker/test_data/tld/data/o_dir'
- # opt$prefix <- 'dockTest'
-
-
-
 # print some progress messages to stderr if \"quietly\" wasn't requested
 if ( opt$verbose ) {
   write(paste("\nCreating graphs from telomere ends:",
@@ -49,17 +40,8 @@ if ( opt$verbose ) {
 cat("\n These are the options you submitted: \n",
     paste("\tResults path:", opt$res_path, collapse = ""), "\n",
     paste("\tPrefix:", opt$prefix, collapse = ""), "\n",
-    paste("Are these correct? (y/n)", collapse = ""), "\n"
+    "\n"
 )
-
-# Exit if user does not confirm variables
-opt_check <- readLines(con = "stdin", n = 1)
-if ( opt_check == "y") {
-  cat("\nOptions have been confirmed, continuing... \n\n")
-} else {
-  cat("\nOptions have not been confirmed, exiting. \n\n")
-  q(save = "no", status = 1, runLast = FALSE)
-}
 
 # Import csv files
 result.path <- opt$res_path
@@ -181,9 +163,6 @@ hist_tel_rep.f <- paste(c(result.path, "/", opt$prefix,
 def.ggsave(hist_tel_rep.f, plot = per.tel.hist)
 
 # Bar graph for read count after telomere processing
-# plot_bam_read_count$seqnames <- as.numeric(gsub("chr_", "", 
-#                                                 plot_bam_read_count$seqnames))
-
 plot_bam_read_count$s.id <- as.factor(plot_bam_read_count$seqnames)
 title <- "A. Number of Reads by End"
 y.lab <- "Telomere Read Count"
@@ -229,7 +208,7 @@ hist_pl <- hist + hist_lb(h.title, h.x,
                  legend.spacing.x = unit(1.0, 'cm')) + 
   cl_pal
 
-hist.pl.f <- paste(c(result.path, "/", opt$prefix, ".histo_60-60_200SW.png"), 
+hist.pl.f <- paste(c(result.path, "/", opt$prefix, ".histo.png"), 
                    collapse = "")
 def.ggsave(hist.pl.f, plot = hist_pl)
 
@@ -237,7 +216,8 @@ def.ggsave(hist.pl.f, plot = hist_pl)
 bar_pl_f <- bar_pl + theme(legend.position = "none")
 hist_pl_f <- hist_pl + theme(legend.position = "none")
 leg <- get_legend(hist_pl)
-title <- textGrob("Figure 1", x = 0.1,
+title <- textGrob("Telomere Reads and Lengths", 
+                  #x= 0.1,
                   gp = gpar(fontsize = 80, 
                             fontfamily = "HersheySans", 
                             fontface = "bold"))
@@ -247,31 +227,15 @@ fig1 <- grid.arrange(title, leg, bar_pl_f, hist_pl_f, nrow = 3, ncol = 2,
                      layout_matrix = lay,
                      widths = c(5, 5), heights = c(1.5, 7, 1.5))
 
-fig1.f <- paste(c(result.path, "/", opt$prefix, ".Figure_1.png"), collapse = "")
+fig1.f <- paste(c(result.path, "/", opt$prefix, ".combined_plot.png"), collapse = "")
 def.ggsave(fig1.f, plot = fig1)
 
-# Density Plots, AllSW and ccs
-scat_title <- "Normalized Density Plot--60/60"
+# Density Plot, just Sample Type 200
+scat_title <- "Normalized Density Plot"
 y.lab <- "Telomere Lengths (kb)"
 x.lab <- "Read Lengths (kb)"
-color.lab <- "s.win"
-shape.lab <- "s.win"
-
-scat_pl <- def.scatter(result.df[result.df$norm=="normalized", ],
-                       scat_title, x.lab, y.lab,
-                       color.lab, shape.lab) +
-  facet_wrap(s.win ~ r.type ~ s.name) 
-
-scat_pl.f <- paste(c(result.path, "/", opt$prefix, ".60_60_DensityPlot.png"), 
-                   collapse = "")
-def.ggsave(scat_pl.f, plot = scat_pl, height = 16)
-
-# Density Plot, just s.win 200
-scat_title <- "Normalized Density Plot, 200SW--60/60"
-y.lab <- "Telomere Lengths (kb)"
-x.lab <- "Read Lengths (kb)"
-color.lab <- "s.win"
-shape.lab <- "s.win"
+color.lab <- "Sample Type"
+shape.lab <- "Sample Type"
 
 scat_pl <- def.scatter(result.df[result.df$norm=="normalized", ],
                        scat_title, x.lab, y.lab,
@@ -281,5 +245,5 @@ scat_pl <- def.scatter(result.df[result.df$norm=="normalized", ],
              ncol = 2) 
 
 scat_pl.f <- paste(c(result.path, "/", opt$prefix, 
-                     ".60_60_DensityPlot.200sw.png"), collapse = "")
+                     ".density_plot.png"), collapse = "")
 def.ggsave(scat_pl.f, plot = scat_pl, height = 12)

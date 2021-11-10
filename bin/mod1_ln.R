@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-## Make changes from mod1_ln_tmp as option for ont data!!
 # Import libraries
 suppressPackageStartupMessages(require("optparse"))                                
 suppressPackageStartupMessages(require("stats"))
@@ -14,11 +13,6 @@ suppressPackageStartupMessages(require(doParallel))
 source('/tld/fxns/modes.R')
 source('/tld/fxns/ddply_thresh.R')
 source('/tld/fxns/stopQuietly.R')
-
-# source('~/tmp/docker/test_data/tld/fxns/modes.R')
-# source('~/tmp/docker/test_data/tld/fxns/ddply_thresh.R')
-# source('~/tmp/docker/test_data/tld/fxns/stopQuietly.R')
-
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
@@ -50,18 +44,9 @@ opt <- parse_args(OptionParser(option_list=option_list))
 
 # print some progress messages to stderr if \"quietly\" wasn't requested
 if ( opt$verbose ) {
-  write(paste("\nStarting to process telomere reads at:",
+  write(paste("\nStarting to determine telomere read lengths at:",
               Sys.time(), collapse = ""), stderr())
 }
-
-# opt <- list()
-# opt$in_csv <- '~/tmp/docker/test_data/tld/data/w_dir/200sw_telomere_ranges.perc.sorted.csv'
-# opt$out_path <- '~/tmp/docker/test_data/tld/data/o_dir'
-# opt$prefix <- 'dockTest'
-# opt$median_values <- '1,1'
-# opt$rename_samples <- 'Spara,Scere'
-# opt$platform <- 'pb'
-# opt$threads <- 7
 
 # Determining number of threads
 if ( is.null(opt$threads) ) {
@@ -79,18 +64,8 @@ cat("\n These are the options you submitted: \n",
     paste("\tMedian list:", opt$median_values, collapse = ""), "\n",
     paste("\tSample list:", opt$rename_samples, collapse = ""), "\n",
     paste("\tSequencing platform:", opt$platform, collapse = ""), "\n",
-    paste("\tProcessors:", noCores, collapse = ""), "\n",
-    paste("Are these correct? (y/n)", collapse = ""), "\n"
+    paste("\tProcessors:", noCores, collapse = ""), "\n"
 )
-
-# Exit if user does not confirm variables
-opt_check <- readLines(con = "stdin", n = 1)
-if ( opt_check == "y") {
-  cat("\nOptions have been confirmed, continuing... \n")
-} else {
-  cat("\nOptions have not been confirmed, exiting. \n")
-  q(save = "no", status = 1, runLast = FALSE)
-}
 
 # Import csv files
 p_perTable <- opt$in_csv
@@ -100,44 +75,37 @@ df_in <- read.csv(p_perTable, comment.char = '#', stringsAsFactors = FALSE)
 
 # Create new column with nl and assign sliding window
 df_in$r.type <- "nl"
-df_in$s.win <- "200"
 
 # Convert list to one large df and rename columns and sample names, add median seq pool read lengths
 df <- df_in
 
 names <- c("s.name", "r.name", "st.range", "en.range", 
            "win.length", "t.count", "per.tel.repeat",
-           "r.type", "s.win")
+           "r.type")
 colnames(df) <- names
 
 # Rename samples if needed
 if (is.character(opt$rename_samples) == TRUE) {
   sample_names <- as.list(strsplit(opt$rename_samples, ","))
+  
+  # Print out status of read name labeling and helpful message
   cat(paste("\nSamples need to be renamed, looping over unique samples.",
             "\n*Letters and #s only.",
             "\n*Samples need to be in same order as median values submitted",
             collapse = ""))
   
+  # Rename samples
   for (sn in 1:length(unique(df$s.name))) {
     cat(paste("\nCurrent sample:", unique(df$s.name)[sn],
-              "\nNew name:", sample_names[[1]][sn], collapse = ""))
+              "\nNew name:", sample_names[[1]][sn], "\n", collapse = ""))
     df$s.name[df$s.name==unique(df$s.name)[sn]] <- sample_names[[1]][sn]
-  }
-  
-  cat("\n\nAre these correct (y/n)")
-  sm_nm_ch <- readLines(con = "stdin", n = 1)
-  if(sm_nm_ch == "y") {
-    cat("\n Samples names are correct, continuing... ")
-  } else {
-    cat("\nSample names are incorrect, exiting.\n")
-    q(save = "no", status = 2, runLast = FALSE)
   }
   
   # Order data frame based on supplied sample names
   df <- df %>% arrange(factor(s.name, levels = sample_names))
   
 } else {
-  cat("\nSamples are named correctly.")
+  cat("\nNo sample names supplied, proceeding with known sample name.")
 }
 
 # Match samples and medians
@@ -145,9 +113,9 @@ med_vec <- as.vector(strsplit(opt$median_values, ","))
 
 # Ensure sample # matches number of median values
 if (length(med_vec[[1]]) == length(unique(df$s.name))) {
-  cat("\n Number of median values matches number of samples, continuing... \n")
+  cat("\nNumber of median values matches number of samples, continuing... \n")
 } else {
-  cat("\n Number of median values does not match number of samples, exiting.\n")
+  cat("\nNumber of median values does not match number of samples, exiting.\n")
   q(save = "no", status = 3, runLast = FALSE)
 }
 
@@ -155,26 +123,17 @@ if (length(med_vec[[1]]) == length(unique(df$s.name))) {
 for (i in 1:length(unique(df$s.name))) {
   cat(paste("\nAssigning sample:", unique(df$s.name)[i],
             "\n\t Median value:", med_vec[[1]][i],
-            "\nIs this correct (y/n)?", collapse = ""))
- #df$read.median[df$s.name==unique(df$s.name)[i]] <- med_vec[[1]][i]
-  
-  # Check that median values are being assigned to correct sample
-  nm_lp_ch <- readLines(con = "stdin", n = 1)
-  if (nm_lp_ch == "y") {
-    cat("\n\t Correct median match, continuing... \n\n")
-    df$read.median[df$s.name==unique(df$s.name)[i]] <- med_vec[[1]][i]
-  } else {
-    cat("\n\t Incorrect median match, exiting.\n\n")
-    q(save = "no", status = 4, runLast = FALSE)
-  }
-}
+            "\n",
+            collapse = ""))
 
-# Convert median to numeric
-df$read.median <- as.numeric(df$read.median)
+  # Assign median values as numeric  
+  df$read.median[df$s.name==unique(df$s.name)[i]] <- 
+    as.numeric(med_vec[[1]][i])
+}
 
 # Remove ranges from readname
 df$r.name <- gsub(pattern = "seqRng.*", replacement = "", x = df$r.name)
-read_count <- ddply(df,.(s.name, r.type, s.win), summarize, 
+read_count <- ddply(df,.(s.name, r.type), summarize, 
                     reads.before.Tlen=length(unique(r.name)))
 
 # Wrap theshold determiniation in if statement if platform is pacbio
@@ -257,26 +216,18 @@ if (opt$platform == "pb") {
     for (et in et.s:et.e) {
       #cat("\nThis is step:", et)
       
-      if(et==et.s){
-        #cat("\n\tThis is first step continuing without calculation")
-      } else {
+      if(et!=et.s){
         
         p.et <- et -1
-        #cat("\n\tThis is previous end threshold:", p.et)
         p.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==p.et]
-        #cat("\n\tThis is previous telomere length:", p.tl)
         
         t.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==et]
-        #cat("\n\tThis is tmp.tl:", t.tl)
         
         diff <- p.tl - t.tl
-        #cat("\n\tThis is difference:", diff)
         
         per.diff <- diff/median(ets.df$tel.ln.mean)
-        #cat("\n\tThis is percent difference of current length:", per.diff)
         
         if( per.diff > 0.006 ) {
-          #cat("\n\tPercent difference is greather than 0.6%, adding to result vector.")
           et.res.vec <- c(et.res.vec, et)
         } 
       }
@@ -286,26 +237,18 @@ if (opt$platform == "pb") {
     for (st in st.s:st.e) {
       #cat("\nThis is step:", st)
       
-      if(st==st.s){
-        #cat("\n\tThis is first step continuing without calculation")
-      } else {
+      if(st!=st.s){
         
         p.st <- st - 1
-        #cat("\n\tThis is previous start threshold:", p.st)
         pr.n <- sts.df$r.per.st[sts.df$s.thresh==p.st]
-        #cat("\n\tThis is previous read number:", pr.n)
         
         t.rn <- sts.df$r.per.st[sts.df$s.thresh==st]
-        #cat("\n\tThis is temporary read number:", t.rn)
         
         diff <- pr.n - t.rn
-        #cat("\n\tThis is difference:", diff)
         
         per.diff <- diff/median(sts.df$r.per.st)
-        #cat("\n\tThis is percent difference of current length:", per.diff)
         
         if( per.diff > 0.006 ) {
-          #cat("\n\tPercent difference is greater than 0.6%, adding to result vector.")
           st.res.vec <- c(st.res.vec, st)
         }
         
@@ -317,30 +260,20 @@ if (opt$platform == "pb") {
   # For loop for ets.df to determine horizontal asymptote
   et.res.vec <- vector()
   for (et in et.s:et.e) {
-    #cat("\nThis is step:", et)
     
-    if(et==et.s){
-      #cat("\n\tThis is first step continuing without calculation")
-    } else {
+    if(et!=et.s){
       
       p.et <- et -1
-      #cat("\n\tThis is previous end threshold:", p.et)
       p.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==p.et]
-      #cat("\n\tThis is previous telomere length:", p.tl)
       
       t.tl <- ets.df$tel.ln.mean[ets.df$e.thresh==et]
-      #cat("\n\tThis is tmp.tl:", t.tl)
       
       diff <- p.tl - t.tl
-      #cat("\n\tThis is difference:", diff)
       
       per.diff <- diff/median(ets.df$tel.ln.mean)
-      #cat("\n\tThis is percent difference of current length:", per.diff)
         
       if( per.diff > 0.002 | per.diff <= 0 ) {
-        #cat("\n\tPercent difference is greather than 0.2% or negative, continuing.")
       } else {
-        #cat("\n\tPercent difference is less than 0.2%, adding to vec")
         et.res.vec <- c(et.res.vec, et)
       }
       
@@ -350,30 +283,20 @@ if (opt$platform == "pb") {
   # For loop for sts.df to determine horizontal asymptote
   st.res.vec <- vector()
   for (st in st.s:st.e) {
-    #cat("\nThis is step:", st)
     
-    if(st==st.s){
-      #cat("\n\tThis is first step continuing without calculation")
-    } else {
+    if(st!=st.s){
       
       p.st <- st - 1
-      #cat("\n\tThis is previous start threshold:", p.st)
       pr.n <- sts.df$r.per.st[sts.df$s.thresh==p.st]
-      #cat("\n\tThis is previous read number:", pr.n)
       
       t.rn <- sts.df$r.per.st[sts.df$s.thresh==st]
-      #cat("\n\tThis is temporary read number:", t.rn)
       
       diff <- pr.n - t.rn
-      #cat("\n\tThis is difference:", -diff)
       
       per.diff <- -diff/median(sts.df$r.per.st)
-      #cat("\n\tThis is percent difference of current length:", per.diff)
       
       if(per.diff > 0.006 | per.diff < 0 ) {
-        #cat("\n\tPercent difference is greather than 0.6% or negative, continuing.")
       } else {
-        #cat("\n\tPercent difference is less than 0.6%, adding to vec")
         st.res.vec <- c(st.res.vec, st)
       }
       
@@ -398,39 +321,52 @@ if (opt$platform == "pb") {
   # These are ont reads
     end.threshold <- 35
     start.threshold <- 40
-}
+  }
+
+# Print out determined thresholds
+cat("\nThis is the determined start.threshol: ", start.threshold)
+cat("\nThis is the determined end.threshold: ", end.threshold)
 
 # Determine telomere lengths based on thresholds
 result.df <- ddply_thresh(df, start.threshold, end.threshold)
 
 # Updating basic stats
 res_num_reads <- ddply(result.df[result.df$norm=="normalized",],
-                       .(s.name, r.type, s.win), summarize, 
+                       .(s.name, r.type), summarize, 
                        reads=length(unique(r.name)), .parallel=TRUE)
 means.df <- ddply(result.df[result.df$norm=="normalized",],
-                  .(s.name, r.type, s.win, threshold), summarize,
+                  .(s.name, r.type, threshold), summarize,
                   means.tel.length = mean(tel.length), .parallel=TRUE)
 read_count$reads.after.Tlen <- res_num_reads$reads
 read_count$thresh <- means.df$threshold
 read_count$mean.tel.length <- means.df$means.tel.length
 
 # Ampls for result.df
-result.tel.stats <- ddply(result.df,.(s.name, r.type, s.win, threshold, norm),
+result.tel.stats <- ddply(result.df,.(s.name, r.type, threshold, norm),
                           summarize,
-                          mode.1 = amps(tel.length)$Peaks[,1][which(amps(tel.length)$Peaks[,2] >=
-                                                                      sort(amps(tel.length)$Peaks[,2], TRUE)[1])][1], 
+                          mode.1 = amps(tel.length)$Peaks[,1]
+                          [which(amps(tel.length)$Peaks[,2] >= 
+                                   sort(amps(tel.length)$Peaks[,2], 
+                                        TRUE)[1])][1], 
                           .parallel = TRUE)
 
 # Create percent telomere repeats means per sample type
-per.tel.stats <- ddply(df,.(s.name, r.type, s.win),
+per.tel.stats <- ddply(df,.(s.name, r.type),
                        summarize,
-                       mode.1 = amps(per.tel.repeat)$Peaks[,1][which(amps(per.tel.repeat)$Peaks[,2] >=
-                                                                       sort(amps(per.tel.repeat)$Peaks[,2], TRUE)[2])][1],
-                       mode.2 = amps(per.tel.repeat)$Peaks[,1][which(amps(per.tel.repeat)$Peaks[,2] >=
-                                                                       sort(amps(per.tel.repeat)$Peaks[,2], TRUE)[2])][2],
-                       antimode = amps(per.tel.repeat)$Antimode[,1][which(amps(per.tel.repeat)$Antimode[,2] ==
-                                                                            min(amps(per.tel.repeat)$Antimode[,2]))],
-                       bimod_coeff = bimodality_coefficient(per.tel.repeat, TRUE), .parallel=TRUE)
+                       mode.1 = amps(per.tel.repeat)$Peaks[,1]
+                       [which(amps(per.tel.repeat)$Peaks[,2] >= 
+                                sort(amps(per.tel.repeat)$Peaks[,2], 
+                                     TRUE)[2])][1],
+                       mode.2 = amps(per.tel.repeat)$Peaks[,1]
+                       [which(amps(per.tel.repeat)$Peaks[,2] >= 
+                                sort(amps(per.tel.repeat)$Peaks[,2], 
+                                     TRUE)[2])][2],
+                       antimode = amps(per.tel.repeat)$Antimode[,1]
+                       [which(amps(per.tel.repeat)$Antimode[,2] == 
+                                min(amps(per.tel.repeat)$Antimode[,2]))],
+                       bimod_coeff = bimodality_coefficient(per.tel.repeat,
+                                                            TRUE), 
+                       .parallel=TRUE)
 
 # Save dataframes
 df.f <- paste(c(result.path, "/", opt$prefix, ".df.Rda"), collapse = "")

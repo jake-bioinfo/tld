@@ -1,6 +1,6 @@
 #!/bin/bash
 # split_fasta.sh
-# splits long fasta file with multiple sequences split into files of each sequence
+# splits long fasta file with multiple sequences into files of each sequence
 
 # Get opts variables initialization
 input_f=''

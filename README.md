@@ -1,19 +1,19 @@
 # TLD -- Telomere Length Determination
 
 ## Table of Contents
-* [General Information](#general\ information)
-* [Installation](#installation)
+* [General Information](#info)
+* [Installation](#install)
 * [Usage](#usage)
-* [Example](#example)
-* [Citing TLD](#citing\ tld)
-* [References](#references)
+* [Example -- Comparing Two Yeast Samples](#example)
+* [Citing TLD](#cite)
+* [References](#ref)
 
-## General Information
+## <a name="info"></a>General Information
 This application is used to determine telomere length distributions, given two sequencing samples and compare the length distributions of those samples. The application requires two fastq files and a reference fasta file. Given these three files telomere length distributions can be determined, denovo telomere motifs are found and chromosomal telomere read counts. 
 
 There is a caveat in that the mean read length of the sequencing set must be longer than the predicted telomere length. For example, homosapien's telomeres are estimated to be ~20-30kb long; therefore, to accurately determine telomere length of homosapien's, the mean read length of the sequencing sets must be >30kb in length.
 
-## Installation
+## <a name="install"></a>Installation
 To run this application, install docker and download the docker image
 
 ### Install docker [docker]: https://docs.docker.com/get-docker/
@@ -43,7 +43,7 @@ $ sudo apt-get install docker-ce docker-ce-cli containerd.io
 $ docker pull jreed0pbsb/tld:latest
 ```
 
-## Usage
+## <a name="usage"></a>Usage
 In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```$ tld/data/fastq ``` and the reference files must go in ```$ tld/data/ref ```. 
 
 ```
@@ -83,8 +83,7 @@ In order to use this application you must first move your data files into the da
 
 ```
 
-## Example 
-### Comparing 2 Yeast Samples
+## <a name="example"></a>Example -- Comparing 2 Yeast Samples
 
 ### Install SRA-Toolkit conda
 
@@ -129,10 +128,10 @@ docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir
 
 ```
 
-## Citing
+## <a name="cite"></a>Citing TLD
 1. Reed J, Kirkman LA, Kafsack BF, Mason CE, Deitsch KW. Telomere length dynamics in response to DNA damage in malaria parasites. iScience. 2021 Jan 20;24(2):102082. doi: 10.1016/j.isci.2021.102082. PMID: 33644714; PMCID: PMC7887396.
 
-## References
+## <a name="ref"></a>References
 1. 
 2. 
 3. 

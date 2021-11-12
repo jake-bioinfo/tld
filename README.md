@@ -92,7 +92,7 @@ conda install -c bioconda sra-tools
 or
 
 #### Install SRA-Toolkit and Download Yeast Samples docker
-For example sake, /tld/data is installed in $HOME/tld
+For example sake, TLD is installed in $HOME/tld
 
 ```sh
 # Pull sra-tools docker image

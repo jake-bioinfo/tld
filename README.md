@@ -5,7 +5,7 @@
 * [Installation](#installation)
 * [Usage](#usage)
 * [Example](#example)
-* [Citing](#citing)
+* [Citing TLD](#citing_tld)
 * [References](#references)
 
 ## General Information

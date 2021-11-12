@@ -93,7 +93,7 @@ conda install -c bioconda sra-tools
 
 or
 
-### Install SRA-Toolkit and Download Yeast Samples docker
+### Install SRA-Toolkit, Download Yeast Samples and Run TLD docker
 For example sake, TLD is installed in $HOME/tld
 
 ```sh
@@ -132,12 +132,12 @@ docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir
 1. Reed J, Kirkman LA, Kafsack BF, Mason CE, Deitsch KW. Telomere length dynamics in response to DNA damage in malaria parasites. iScience. 2021 Jan 20;24(2):102082. doi: 10.1016/j.isci.2021.102082. PMID: 33644714; PMCID: PMC7887396.
 
 ## <a name="ref"></a>References
-1. 
-2. 
-3. 
-4. 
-5. 
-6. 
-7. 
+1. HOMER
+2. SeqKit
+3. SRA-ToolKit
+4. Modes
+5. R
+6. ggplot2
+7. BASH
 
 

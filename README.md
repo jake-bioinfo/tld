@@ -45,6 +45,43 @@ $ docker pull jreed0pbsb/tld:latest
 ## Usage
 In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```$ tld/data/fastq ``` and the reference files must go in ```$ tld/data/ref ```. 
 
+```
+        Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
+			    -d <result_dir> -s <sample_names> -m <medians> -n <platform> -t <threads>
+			    -j <estimated_telomere_motif_length>
+
+                -h|--help       	Prints out this dialogiue
+		
+		-w|--work_dir		Input working directory
+
+                -a|--infq1      	Input fastq1 
+		
+		-f|--infq2		Input fastq2
+
+                -p|--prefix     	Character prefix for file names, ex. "p_falciparum_telomeres"
+
+                -r|--reference  	Reference assembly
+
+                -d|--result_dir 	Full path to project results direcotry
+
+		-n|--platform		Select sequencing platform, ont or pb, pb is default
+
+		-s|--sample_names	samples names, ex. "wt,irr,KO,..."
+
+		-m|--medians		medians for samples, ex. "5346,7895,9058..."
+
+		-j|--motif		predicted motif length
+
+		-l|--end_length		Length of end of chromosome for telomere analysis, DEFAULT = 200
+
+		-e|--high_euk		Set for higher eukaryotes, DEFAULT = option unset (lower eukaryotes)
+
+                -t|--threads    	integer for number of threads to use for operation, DEFAULT = max-2
+
+                **              	-w,-p,-r,-d,-s,-m,-a,f,-j are !required!
+
+```
+
 ### Comparing 2 yeast samples
 #### Initialize docker container 
 ```sh

@@ -24,7 +24,7 @@ bin_path=${cur_dir}/bin
 # Set help dialog
 help_inf="
 
-        Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
+        Usage: telo_pipe.sh -w <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
 			    -d <result_dir> -s <sample_names> -m <medians> -n <platform> -t <threads>
 			    -j <estimated_telomere_motif_length>
 

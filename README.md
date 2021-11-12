@@ -46,7 +46,7 @@ $ docker pull jreed0pbsb/tld:latest
 In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```$ tld/data/fastq ``` and the reference files must go in ```$ tld/data/ref ```. 
 
 ```
-        Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
+        Usage: telo_pipe.sh -w <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
 			    -d <result_dir> -s <sample_names> -m <medians> -n <platform> -t <threads>
 			    -j <estimated_telomere_motif_length>
 
@@ -82,8 +82,46 @@ In order to use this application you must first move your data files into the da
 
 ```
 
-### Comparing 2 yeast samples
-#### Initialize docker container 
+### Example -- Comparing 2 Yeast Samples
+#### Install SRA-Toolkit conda
+
 ```sh
-$ docker run -d --name <name_of_container> <name_of_img>
+conda install -c bioconda sra-tools
+```
+
+or
+
+#### Install SRA-Toolkit and Download Yeast Samples docker
+For example sake, /tld/data is installed in $HOME/tld
+
+```sh
+# Pull sra-tools docker image
+docker pull ncbi/sra-tools
+
+# Setup docker image and download yeast strains
+docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
+docker exec -it --rm sra fastq-dump -v SRR13577847 -O /dna
+mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
+docker exec -it --rm sra fastq-dump -v SRR13577846 -O /dna
+mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
+docker container stop sra
+
+# Get and unpack reference genome
+wget -P $HOME/tld/data http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
+tar -xvf $HOME/tld/data/S288C_reference_genome_Current_Release.tgz -C $HOME/tld/data
+gzip -d $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa.gz
+mv $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
+rm -rf $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421
+rm $HOME/tld/data/S288C_reference_genome_Current_Release.tgz
+
+# Setup tld docker image and execute tld command
+docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
+docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
+	-a /tld/data/s288c.fastq \
+	-f /tld/data/cen-pk.fastq \
+	-r /tld/data/S288C_ref_genome.fasta \
+	-p yeast \
+	-s "s288c,cen-pk" \
+	-m "1,1" -j 6 -l 100 -t 7
+
 ```

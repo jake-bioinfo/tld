@@ -1,11 +1,12 @@
 # TLD -- Telomere Length Determination
 
 ## Table of Contents
-* [General Information](#general-info)
-* [Installation](#install)
+* [General Information](#general information)
+* [Installation](#installation)
 * [Usage](#usage)
-* [Citing TLD](#cite)
-* [References](#ref)
+* [Example](#example)
+* [Citing TLD](#citing tld)
+* [References](#references)
 
 ## General Information
 This application is used to determine telomere length distributions, given two sequencing samples and compare the length distributions of those samples. The application requires two fastq files and a reference fasta file. Given these three files telomere length distributions can be determined, denovo telomere motifs are found and chromosomal telomere read counts. 
@@ -82,8 +83,8 @@ In order to use this application you must first move your data files into the da
 
 ```
 
-### Example -- Comparing 2 Yeast Samples
-#### Install SRA-Toolkit conda
+## Example -- Comparing 2 Yeast Samples
+### Install SRA-Toolkit conda
 
 ```sh
 conda install -c bioconda sra-tools
@@ -91,7 +92,7 @@ conda install -c bioconda sra-tools
 
 or
 
-#### Install SRA-Toolkit and Download Yeast Samples docker
+### Install SRA-Toolkit and Download Yeast Samples docker
 For example sake, TLD is installed in $HOME/tld
 
 ```sh
@@ -125,3 +126,17 @@ docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir
 	-m "1,1" -j 6 -l 100 -t 7
 
 ```
+
+## Citing TLD
+1. Reed J, Kirkman LA, Kafsack BF, Mason CE, Deitsch KW. Telomere length dynamics in response to DNA damage in malaria parasites. iScience. 2021 Jan 20;24(2):102082. doi: 10.1016/j.isci.2021.102082. PMID: 33644714; PMCID: PMC7887396.
+
+## References
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+
+

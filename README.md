@@ -1,11 +1,11 @@
 # TLD -- Telomere Length Determination
 
 ## Table of Contents
-* [General Information](#general_information)
+* [General Information](#general\ information)
 * [Installation](#installation)
 * [Usage](#usage)
 * [Example](#example)
-* [Citing TLD](#citing_tld)
+* [Citing TLD](#citing\ tld)
 * [References](#references)
 
 ## General Information

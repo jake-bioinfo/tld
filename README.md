@@ -1,11 +1,11 @@
 # TLD -- Telomere Length Determination
 
 ## Table of Contents
-* [General Information](#general information)
+* [General Information](#general_information)
 * [Installation](#installation)
 * [Usage](#usage)
 * [Example](#example)
-* [Citing TLD](#citing tld)
+* [Citing](#citing)
 * [References](#references)
 
 ## General Information
@@ -83,7 +83,9 @@ In order to use this application you must first move your data files into the da
 
 ```
 
-## Example -- Comparing 2 Yeast Samples
+## Example 
+### Comparing 2 Yeast Samples
+
 ### Install SRA-Toolkit conda
 
 ```sh
@@ -127,7 +129,7 @@ docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir
 
 ```
 
-## Citing TLD
+## Citing
 1. Reed J, Kirkman LA, Kafsack BF, Mason CE, Deitsch KW. Telomere length dynamics in response to DNA damage in malaria parasites. iScience. 2021 Jan 20;24(2):102082. doi: 10.1016/j.isci.2021.102082. PMID: 33644714; PMCID: PMC7887396.
 
 ## References

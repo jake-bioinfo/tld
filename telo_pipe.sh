@@ -26,6 +26,7 @@ help_inf="
 
         Usage: telo_pipe.sh -i <work_dir> -a <infq1> -f <infq2> -r <reference> -p <prefix> 
 			    -d <result_dir> -s <sample_names> -m <medians> -n <platform> -t <threads>
+			    -j <estimated_telomere_motif_length>
 
                 -h|--help       	Prints out this dialogiue
 		
@@ -55,7 +56,7 @@ help_inf="
 
                 -t|--threads    	integer for number of threads to use for operation, DEFAULT = max-2
 
-                **              	i,p,r,d,s,b,m are !required!
+                **              	-w,-p,-r,-d,-s,-m,-a,f,-j are !required!
 
 "
 
@@ -178,7 +179,7 @@ done
 
 # Check required arguements are met
 if [[ -z $w_dir || -z $pre || -z $ref || -z $res_dir || -z $sn || -z $med || -z $infq_1 || -z $infq_2 || -z $mot ]]; then
-        echo -e "\nRequired options (-w,-a,-f,-p,-r,-d,-s,-m, -j) were not supplied, exiting\n"
+        echo -e "\nRequired options (-w,-p,-r,-d,-s,-m,-a,f,-j) were not supplied, exiting\n"
         exit 1;
 fi
 

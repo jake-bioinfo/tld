@@ -43,7 +43,7 @@ $ docker pull jreed0pbsb/tld:latest
 ```
 
 ## Usage
-In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```sh $ tld/data/fastq ```sh and the reference files must go in ```sh $ tld/data/ref ```sh. 
+In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```$ tld/data/fastq ``` and the reference files must go in ```$ tld/data/ref ```. 
 
 ### Comparing 2 yeast samples
 #### Initialize docker container 

@@ -43,6 +43,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 sudo docker pull jreed0pbsb/tld:latest
 ```
 
+#### Clone TLD
+```sh
+mkdir <directory_to_install_tld>
+git clone https://github.com/jake-bioinfo/tld.git <directory_to_install_tld>
+```
+
 ## <a name="usage"></a>Usage
 In order to use this application you must first move your data files into the data directory of tld. The fastq files go into ```$ tld/data/fastq ``` and the reference files must go in ```$ tld/data/ref ```. 
 
@@ -102,23 +108,23 @@ sudo docker pull ncbi/sra-tools
 
 # Setup docker image and download yeast strains
 sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
-sudo docker exec -it --rm sra fastq-dump -v SRR13577847 -O /dna
+sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna
 sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
-sudo docker exec -it --rm sra fastq-dump -v SRR13577846 -O /dna
+sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna
 sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
 sudo docker container stop sra
 
 # Get and unpack reference genome
-wget -P $HOME/tld/data http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
-tar -xvf $HOME/tld/data/S288C_reference_genome_Current_Release.tgz -C $HOME/tld/data
-gzip -d $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa.gz
-mv $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
-rm -rf $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421
-rm $HOME/tld/data/S288C_reference_genome_Current_Release.tgz
+wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
+tar -xvf S288C_reference_genome_Current_Release.tgz
+gzip -d S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa.gz
+sudo mv S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
+rm -rf S288C_reference_genome_R64-3-1_20210421
+rm S288C_reference_genome_Current_Release.tgz
 
 # Setup tld docker image and execute tld command
 sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
-sudo docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
+sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \
 	-r /tld/data/S288C_ref_genome.fasta \

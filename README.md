@@ -40,7 +40,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 #### Download TLD docker image
 ```sh
-docker pull jreed0pbsb/tld:latest
+sudo docker pull jreed0pbsb/tld:latest
 ```
 
 ## <a name="usage"></a>Usage
@@ -98,15 +98,15 @@ For example sake, TLD is installed in $HOME/tld
 
 ```sh
 # Pull sra-tools docker image
-docker pull ncbi/sra-tools
+sudo docker pull ncbi/sra-tools
 
 # Setup docker image and download yeast strains
-docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
-docker exec -it --rm sra fastq-dump -v SRR13577847 -O /dna
-mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
-docker exec -it --rm sra fastq-dump -v SRR13577846 -O /dna
-mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
-docker container stop sra
+sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
+sudo docker exec -it --rm sra fastq-dump -v SRR13577847 -O /dna
+sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
+sudo docker exec -it --rm sra fastq-dump -v SRR13577846 -O /dna
+sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
+sudo docker container stop sra
 
 # Get and unpack reference genome
 wget -P $HOME/tld/data http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
@@ -117,8 +117,8 @@ rm -rf $HOME/tld/data/S288C_reference_genome_R64-3-1_20210421
 rm $HOME/tld/data/S288C_reference_genome_Current_Release.tgz
 
 # Setup tld docker image and execute tld command
-docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
-docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
+sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
+sudo docker exec -it --rm tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \
 	-r /tld/data/S288C_ref_genome.fasta \

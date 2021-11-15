@@ -131,7 +131,7 @@ rm S288C_reference_genome_Current_Release.tgz
 #### Setup tld docker image and execute tld command
 ```sh
 sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
-sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
+sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -d /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \
 	-r /tld/data/S288C_ref_genome.fasta \

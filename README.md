@@ -102,8 +102,9 @@ or
 ### Install SRA-Toolkit, Download Yeast Samples and Run TLD docker
 For example sake, TLD is installed in $HOME/tld
 
+
+#### Pull sra-tools docker image
 ```sh
-# Pull sra-tools docker image
 sudo docker pull ncbi/sra-tools
 ```
 

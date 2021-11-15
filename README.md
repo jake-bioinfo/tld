@@ -105,24 +105,31 @@ For example sake, TLD is installed in $HOME/tld
 ```sh
 # Pull sra-tools docker image
 sudo docker pull ncbi/sra-tools
+```
 
-# Setup docker image and download yeast strains
+#### Setup docker image and download yeast strains
+```sh
 sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
 sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna
 sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
 sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna
 sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
 sudo docker container stop sra
+sudo docker container rm sra
+```
 
-# Get and unpack reference genome
+#### Get and unpack reference genome
+```sh
 wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
 tar -xvf S288C_reference_genome_Current_Release.tgz
 gzip -d S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa.gz
 sudo mv S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
 rm -rf S288C_reference_genome_R64-3-1_20210421
 rm S288C_reference_genome_Current_Release.tgz
+```
 
-# Setup tld docker image and execute tld command
+#### Setup tld docker image and execute tld command
+```sh
 sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
 sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
@@ -131,7 +138,6 @@ sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -o /tld/data/o_dir
 	-p yeast \
 	-s "s288c,cen-pk" \
 	-m "1,1" -j 6 -l 100 -t 7
-
 ```
 
 ## <a name="cite"></a>Citing TLD

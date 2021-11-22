@@ -111,9 +111,9 @@ sudo docker pull ncbi/sra-tools
 #### Setup docker image and download yeast strains
 ```sh
 sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
-sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna
+sudo docker exec -it sra fasterq-dump -v SRR13577847 -O /dna -t /dna
 sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
-sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna
+sudo docker exec -it sra fasterq-dump -v SRR13577846 -O /dna -t /dna
 sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
 sudo docker container stop sra
 sudo docker container rm sra
@@ -145,12 +145,19 @@ sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -d /tld/data/o_dir
 1. Reed J, Kirkman LA, Kafsack BF, Mason CE, Deitsch KW. Telomere length dynamics in response to DNA damage in malaria parasites. iScience. 2021 Jan 20;24(2):102082. doi: 10.1016/j.isci.2021.102082. PMID: 33644714; PMCID: PMC7887396.
 
 ## <a name="ref"></a>References
-1. HOMER
-2. SeqKit
-3. SRA-ToolKit
-4. Modes
-5. R
-6. ggplot2
-7. BASH
-
-
+1. Heinz S, Benner C, Spann N, Bertolino E et al. Simple Combinations of Lineage-Determining Transcription Factors Prime cis-Regulatory Elements Required for Macrophage and B Cell Identities. Mol Cell 2010 May 28;38(4):576-589. PMID: 20513432
+2. W Shen, S Le, Y Li*, F Hu*. SeqKit: a cross-platform and ultrafast toolkit for FASTA/Q file manipulation. PLOS ONE. doi:10.1371/journal.pone.0163962.
+3. Sathish-deevi, modes-Package, (2016), Github repository, https://github.com/sathish-deevi/modes-Package
+4. R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+6. Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN 978-3-319-24277-4, https://ggplot2.tidyverse.org.
+7. GNU, P. (2007). Free Software Foundation. Bash (3.2. 48)[Unix shell program].
+8. Wickham H (2011). “The Split-Apply-Combine Strategy for Data Analysis.” Journal of Statistical Software, 40(1), 1–29. http://www.jstatsoft.org/v40/i01/.
+9. Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2018). dplyr: A Grammar of Data Manipulation. R package version 0.7.6. https://CRAN.R-project.org/package=dplyr
+10. Microsoft and Steve Weston (2020). foreach: Provides Foreach Looping Construct. R package version 1.5.1. https://CRAN.R-project.org/package=foreach
+11. Microsoft Corporation and Steve Weston (2020). doParallel: Foreach Parallel Adaptor for the 'parallel' Package. R package version 1.0.16. https://CRAN.R-project.org/package=doParallel
+12. H. Pagès, P. Aboyoun, R. Gentleman and S. DebRoy (2019). Biostrings: Efficient manipulation of biological strings. R package version 2.54.0.
+13. Lawrence M, Huber W, Pag\`es H, Aboyoun P, Carlson M, et al. (2013) Software for Computing and Annotating Genomic Ranges. PLoS Comput Biol 9(8): e1003118. doi:10.1371/journal.pcbi.1003118GenomicAlignments 
+14. Charif, D. and Lobry, J.R. (2007). seqinr. 
+15. Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package version 1.1-2. https://CRAN.R-project.org/package=RColorBrewer
+16. Baptiste Auguie (2017). gridExtra: Miscellaneous Functions for "Grid" Graphics. R package version 2.3. https://CRAN.R-project.org/package=gridExtra
+17. Claus O. Wilke (2020). cowplot: Streamlined Plot Theme and Plot Annotations for 'ggplot2'. R package version 1.1.1. https://CRAN.R-project.org/package=cowplot

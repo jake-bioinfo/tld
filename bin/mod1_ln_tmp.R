@@ -9,10 +9,16 @@ suppressPackageStartupMessages(require(parallel))
 suppressPackageStartupMessages(require(foreach))
 suppressPackageStartupMessages(require(doParallel))
 
-# Sourcing useful functions
-source('/tld/fxns/modes.R')
-source('/tld/fxns/ddply_thresh.R')
-source('/tld/fxns/stopQuietly.R')
+# # Sourcing useful functions
+# source('/tld/fxns/modes.R')
+# source('/tld/fxns/ddply_thresh.R')
+# source('/tld/fxns/stopQuietly.R')
+
+source('~/tld/fxns/modes.R')
+source('~/tld/fxns/ddply_thresh.R')
+source('~/tld/fxns/stopQuietly.R')
+
+
 
 # Import options
 option_list <- list(make_option(c("-v", "--verbose"), action = "store_true", default = TRUE,
@@ -47,6 +53,16 @@ if ( opt$verbose ) {
   write(paste("\nStarting to determine telomere read lengths at:",
               Sys.time(), collapse = ""), stderr())
 }
+
+# temp variables
+opt <- list()
+opt$in_csv <- '~/tld/data/w_dir/200sw_telomere_ranges.perc.sorted.csv'
+opt$out_path <- '~/tld/data/o_dir'
+opt$prefix <- 'pfalci'
+opt$median_values <- '1,1'
+opt$rename_samples <- 'C3,E8'
+opt$platform <- 'pb'
+opt$threads <- 7
 
 # Determining number of threads
 if ( is.null(opt$threads) ) {

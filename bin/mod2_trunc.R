@@ -56,8 +56,7 @@ cat("\n These are the options you submitted: \n",
     paste("\tInput fasta2 sub sample:", opt$in_sub_fasta, collapse = ""), "\n",
     paste("\tOut path:", opt$out_path, collapse = ""), "\n",
     paste("\tPrefix:", opt$prefix, collapse = ""), "\n",
-    paste("\tProcessors:", noCores, collapse = ""), "\n",
-    paste("Are these correct? (y/n)", collapse = ""), "\n"
+    paste("\tProcessors:", noCores, collapse = ""), "\n"
 )
 
 # Setup parallel environment

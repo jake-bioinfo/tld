@@ -258,8 +258,8 @@ if (opt$platform == "pb") {
 }
 
 # Print out determined thresholds
-cat("\nThis is the determined start.threshol: ", start.threshold)
-cat("\nThis is the determined end.threshold: ", end.threshold)
+cat("\nThis is the determined start.threshold: ", start.threshold)
+cat("\nThis is the determined end.threshold: ", end.threshold, "\n")
 
 # Determine telomere lengths based on thresholds
 result.df <- ddply_thresh(df, start.threshold, end.threshold)

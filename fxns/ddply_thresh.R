@@ -8,7 +8,6 @@ ddply_thresh <- function(df, s.thresh, e.thresh ) {
   
   # Find telomere length by read
   iter.label <- paste(c(s.thresh, "-", e.thresh), collapse = "")
-  if (head(df) > 1 ) { 
 	iter.df <- ddply(df,.(s.name, r.name, r.type, read.median),
                   findTelLength, s.thresh, e.thresh)
   
@@ -45,9 +44,4 @@ ddply_thresh <- function(df, s.thresh, e.thresh ) {
   		}
   
   	return(iter.df)
-  } else {
-	
-	  print("\nNo DF to analyze!")
-
-	}
 }

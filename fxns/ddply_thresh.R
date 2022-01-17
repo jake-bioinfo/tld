@@ -35,9 +35,8 @@ ddply_thresh <- function(df, s.thresh, e.thresh ) {
                 	                    read.length, trunc.start, trunc.end, 
                         	            telomere.end, s.thresh, e.thresh, 
                                 	    threshold),
-                          		summarize, tel.length=round((tel.length/
-                                                         (read.median/1000))*
-                                                        (med_1+med_2)/2/1000, 
+                          		summarize, tel.length=round((tel.length*med_1+tel.length*med_2)/
+                          		                              (read.median*2), 
                                                       digits = 5),
                           		norm="normalized")
     

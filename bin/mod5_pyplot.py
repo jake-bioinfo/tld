@@ -1,26 +1,62 @@
+#!/usr/bin/env python
+
 # Imports
+import sys
+import argparse
+import pathlib
+from pathlib import Path
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from natsort import natsorted as ns
-from statannot import add_stat_annotation
 from scipy import stats
 from math import log, sqrt
 
+# Example argparse
+parser = argparse.ArgumentParser(description='Create figure from end bam csv')
+parser.add_argument("-i", "--input_csv", type=pathlib.Path, required=True,
+                    help="This is the file location for the end bam csv, full path required")
+parser.add_argument("-o", "--output_dir", type=pathlib.Path, required=True,
+                    help="This is the output file path, full path required")
+parser.add_argument("-p", "--prefix", type=str, required=True,
+                    help="Prefix for output file name")
+args = parser.parse_args()
+
+print("\nStarting to produce figure of telomere lengths by Chromosome and Chromosome End\n")
+print("\nThese are the options for the visualization script",
+      "\n\tThis is the input file:", args.input_csv,
+      "\n\tThis is the output directory:", args.output_dir,
+      "\n\tThis is the prefix for the output file:", args.prefix,
+      "\n")
+
+# Check if input file and output directory exist
+if Path(args.input_csv).is_file():
+    print("\n{input_csv} is a file, continuing.".format(input_csv=args.input_csv))
+else:
+    sys.exit("\n{input_csv} does not exist, exiting.".format(input_csv=args.input_csv))
+
+if Path(args.output_dir).is_dir():
+    print("\n{out_dir} is a valid directory, continuing.".format(out_dir=args.output_dir))
+else:
+    sys.exit("\n{out_dir} is not a valid directory, exiting.".format(out_dir=args.output_dir))
+
 
 # Setting up some interactive options
-plt.ioff()
-#plt.ion()
+#plt.ioff()
+plt.ion()
 desired_width = 200
 pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns', 20)
 pd.set_option('display.max_rows', 50)
 
 # Cleaning up data some
-in_fn = '/home/jake/tmp/docker/test_data/tld/data/o_dir/dockTest.end.bam.csv'
+#in_fn = args.input_csv
+#out_dir = str(args.output_dir)
+
+in_fn = '~/tld/data/o_dir/pfalci.end.bam.csv'
+out_dir = '~/Desktop'
 data = pd.read_csv(in_fn)
-out_dir = '/home/jake/Desktop'
 
 data.rename(columns={'s.name': 'Sample Name', 's.win': 'Sliding Window (bp)',
                      'r.type': 'Read Type', 'tel.length': 'Telomere Length (kb)',
@@ -29,46 +65,30 @@ data.rename(columns={'s.name': 'Sample Name', 's.win': 'Sliding Window (bp)',
 # Process data and split into left and right ends
 data_all = data[data['Read Type'].str.match('nl')]
 data_all = data_all.sort_values(by='Sample Name')
-data_all = data_all.replace("mm", "mouse")
-data_all = data_all.replace("rm", "frog")
 
+# Process data into 5' End data only for plotting
 l_data = data_all[data_all['Chromosome End'].str.match('5')]
-chr_str = l_data['Chromosome'].apply(str)
-l_data = l_data.assign(Chromosome=chr_str.values)
+chr_int = l_data['Chromosome'].apply(int)
+l_data = l_data.assign(Chromosome=chr_int.values)
 l_data.rename(columns={"Telomere Length (kb)": "5' End"}, inplace=True)
+
+# Process data into 3' End data only for plotting
 r_data = data_all[data_all['Chromosome End'].str.match('3')]
-chr_str = r_data['Chromosome'].apply(str)
-r_data = r_data.assign(Chromosome=chr_str.values)
+chr_int = r_data['Chromosome'].apply(int)
+r_data = r_data.assign(Chromosome=chr_int.values)
 r_data.rename(columns={"Telomere Length (kb)": "3' End"}, inplace=True)
 
-# Basic stats for individual chromosome data
-
-l_sub = l_data[['Sample Name', 'Chromosome', '5\' End']]
-#chr_int = l_sub['Chromosome'].apply(int)
-#l_sub = l_sub.assign(Chromosome=chr_int.values)
-l_sub.sort_values(by=['Chromosome'])
-l_stat = l_sub.groupby(['Sample Name', 'Chromosome']).describe()
-#l_lat = l_stat.to_latex(index=True)
-
-r_sub = r_data[['Sample Name', 'Chromosome', '3\' End']]
-#chr_int = r_sub['Chromosome'].apply(int)
-#r_sub = r_sub.assign(Chromosome=chr_int.values)
-r_sub.sort_values(by=['Chromosome'])
-r_stat = r_sub.groupby(['Sample Name', 'Chromosome']).describe()
-#r_lat = r_stat.to_latex(index=True)
-
 # Set up plots
-
-sns.set(context='paper', style='darkgrid', font='Times New Roman')
+sns.set(context='paper', style='darkgrid')
 sns.set_palette('Set1', color_codes=True)
 
 # Increase fonts sizes for Figure 3 & Figure 4
 
-plt.rc('font', size=20)
-plt.rc('xtick', labelsize=20)
-plt.rc('ytick', labelsize=20)
-plt.rc('axes', labelsize=20)
-plt.rc('axes', titlesize=20)
+# plt.rc('font', size=20)
+# plt.rc('xtick', labelsize=20)
+# plt.rc('ytick', labelsize=20)
+# plt.rc('axes', labelsize=20)
+# plt.rc('axes', titlesize=20)
 
 fig_all, axes = plt.subplots(nrows=2, sharex='all', sharey='all', figsize=(14, 10))
 
@@ -77,20 +97,15 @@ x = "Chromosome"
 y = "5' End"
 
 # Order
-
-order = sorted(data['Chromosome'].unique())
-
-order = ns(order)
-
+order = sorted(data_all['Chromosome'].unique())
 hue = "Sample Name"
-hue_order = ['mouse', 'frog']
 
 lchr = sns.violinplot(x=x, y=y, data=l_data,
                       hue=hue,
                       split=True,
                       inner="quartile",
                       height=4, aspect=1.0,
-                      legend=False, cut=1,
+                      legend=False, cut=0,
                       palette=['r', 'b'],
                       order=order,
                       bw=0.5,
@@ -98,7 +113,7 @@ lchr = sns.violinplot(x=x, y=y, data=l_data,
 
 lchr.legend_.remove()
 lchr.set(xlabel=None)
-lchr.set_xticklabels(lchr.get_xticklabels(),rotation = 90)
+lchr.set_xticklabels(lchr.get_xticklabels(), rotation=90)
 
 # Reset Y for rchr
 y = "3' End"
@@ -109,14 +124,14 @@ rchr = sns.violinplot(x=x, y=y, data=r_data,
                       inner="quartile",
                       height=4, aspect=1.0,
                       palette=['r', 'b'],
-                      legend=False, cut=2,
+                      legend=False, cut=0,
                       order=order,
                       bw=0.5,
                       ax=axes[1])
 
 rchr.legend_.remove()
 rchr.set(xlabel=None)
-rchr.set_xticklabels(rchr.get_xticklabels(),rotation = 90)
+rchr.set_xticklabels(rchr.get_xticklabels(), rotation=90)
 
 # Add titles and formatting to chromosome end plot, figure 2
 # Titles
@@ -130,16 +145,16 @@ fig_all.text(0.45, 0.03, 'Chromosome',
 # Legends
 handles, labels = axes[1].get_legend_handles_labels()
 irr_status = fig_all.legend(handles, labels,
-                            bbox_to_anchor=(0.988, 0.65),
+                            bbox_to_anchor=(0.988, 0.55),
                             prop={'size': 26}, title='Sample')
 axes = plt.gca().add_artist(irr_status)
 
 # Layout
-fig_all.tight_layout()
-plt.subplots_adjust(left=0.11, bottom=0.12, right=0.865, top=0.88)
+# fig_all.tight_layout()
+# plt.subplots_adjust(left=0.11, bottom=0.12, right=0.865, top=0.88)
 
 # Save Figure 2
-fil1_name = 'test'
-plt1_f = out_dir + "/" + fil1_name + ".png"
-plt.savefig(plt1_f, optomize=True, progressive=True, dpi=600)
+fil1_name = 'telo_length_by_chromosome'
+plt1_f = out_dir + "/" + args.prefix + "_" + fil1_name + ".png"
+plt.savefig(plt1_f, dpi=600)
 plt.close('all')

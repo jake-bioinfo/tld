@@ -11,7 +11,7 @@
 ## <a name="info"></a>General Information
 This application is used to determine telomere length distributions, given two sequencing samples and compare the length distributions of those samples. The application requires two fastq files and a reference fasta file. Given these three files telomere length distributions can be determined, denovo telomere motifs are found and chromosomal telomere read counts. 
 
-There is a caveat in that the mean read length of the sequencing set must be longer than the predicted telomere length. For example, homosapien's telomeres are estimated to be ~20-30kb long; therefore, to accurately determine telomere length of homosapien's, the mean read length of the sequencing sets must be >30kb in length.
+There is a caveat in that the mean read length of the sequencing set must be longer than the predicted telomere length. For example, homosapien's telomeres are estimated to be ~5-15kb long; therefore, to accurately determine telomere length of homosapien's, the mean read length of the sequencing sets must be >15kb in length.
 
 ## <a name="install"></a>Installation
 To run this application, install docker and download the docker image

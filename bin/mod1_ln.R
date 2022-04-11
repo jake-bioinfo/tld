@@ -137,138 +137,134 @@ read_count <- ddply(df,.(s.name, r.type), summarize,
                     reads.before.Tlen=length(unique(r.name)))
 
 # Setup parallel environment
-   cl <- makeCluster(noCores)
-   registerDoParallel()
+cl <- makeCluster(noCores)
+registerDoParallel()
    
 
 # Wrap theshold determiniation in if statement if platform is pacbio
-# if (opt$platform == "pb") { 
-#   
-#   # Setup parallel environment
-#   cl <- makeCluster(noCores)
-#   registerDoParallel()
-#   
-#   # Downsample number of reads
-#   sample_size <- round((0.30 * (length(unique(df[df$s.name==unique(df$s.name)[1],]$r.name)))), digits = -1)
-#   df_sr <- sample(unique(df[df$s.name==unique(df$s.name)[1],]$r.name), sample_size)
-#   df_s <- data.frame()
-#   
-#   function_g <- function(df, int, df_sr) {
-#     df_s_tmp <- df[grep(df_sr[int], df$r.name), ]
-#     return(df_s_tmp)
-#   }
-#   
-#   cat("\nStarting subsampling for all threshold processing.\n")
-#   df_s <- foreach(s=1:length(df_sr), .combine = rbind) %dopar% {
-#     df_s_tmp <- function_g(df[df$s.name==unique(df$s.name)[1],], s, df_sr)
-#     df_s_tmp
-#   }
-#   cat("\nSubsampling completed.\n")
-#   
-#   # Create data frame from 1000 downsampled reads to determine threshold to use 
-#   # going forward
-#   # Create different test data frames for ont and pb bc ont data has messier 
-#   # telomeres and often does not meet the criteria at lower and higher end 
-#   # thresholds
-#   start <- 1
-#   end <- 100
-#   
-#   # Initializing result data frame
-#   th.result.df <- data.frame()
-#   
-#   cat("\nProcessing all end thresholds for starting threshold of 50.\n")
-#   e.result.df <- foreach(en=start:end, .combine=rbind) %dopar% {
-#     tmp.result <- ddply_thresh(df_s, 50, en)
-#     tmp.result
-#   }
-#   
-#   cat("\nProcessing all start thresholds for ending threshold of 50.\n")
-#   s.result.df <- foreach(st=start:end, .combine=rbind) %dopar% {
-#     tmp.result <- ddply_thresh(df_s, st, 50)
-#     tmp.result
-#   }
-#   
-#   # Producing end threshold data frame to determine end threshold
-#   et.df <- ddply(e.result.df[e.result.df$norm=="normalized", ],
-#                  .(s.name, e.thresh, s.thresh), summarize,
-#                  tel.ln.mean=mean(tel.length), .parallel = TRUE)
-#   
-#   # Producing start threshold data frame to determine start threshold
-#   st.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
-#                  .(s.name, s.thresh, e.thresh), summarize,
-#                  r.per.st=length(unique(r.name)), .parallel = TRUE)
-#   
-#   # Determine asymptote of end threshold and max of start threshold
-#   # subsets
-#   
-#     et.res.vec <- vector()
-#     for (et in start:end) {
-#       
-#       if(et!=start){
-#         
-#         p.et <- et -1
-#         p.tl <- et.df$tel.ln.mean[et.df$e.thresh==p.et]
-#         
-#         t.tl <- et.df$tel.ln.mean[et.df$e.thresh==et]
-#         
-#         diff <- p.tl - t.tl
-#         
-#         per.diff <- diff/median(et.df$tel.ln.mean)
-#         
-#         if( isTRUE(per.diff > 0.006) ) {
-#           et.res.vec <- c(et.res.vec, et)
-#         } 
-#       }
-#     }
-# 
-#     # For loop for sts.df for ccs reads to determine vertical asymptote
-#     st.res.vec <- vector()
-#     for (st in start:end) {
-#       
-#       if(st!=start){
-#         
-#         p.st <- st - 1
-#         pr.n <- st.df$r.per.st[st.df$s.thresh==p.st]
-#         
-#         t.rn <- st.df$r.per.st[st.df$s.thresh==st]
-#         
-#         diff <- pr.n - t.rn
-#         
-#         per.diff <- diff/median(st.df$r.per.st)
-#         
-#         if( isTRUE(per.diff > 0.006) ) {
-#           st.res.vec <- c(st.res.vec, st)
-#         }
-#         
-#       }
-#     }
-#     
-#    
-#   # Determine threshold values based on median values of result vector
-#   end.threshold <- round(quantile(et.res.vec)[2])
-#   if (is.na(end.threshold)) {
-#     end.threshold <- 25
-#   }
-#   
-#   # Determine threshold values based on median values of result vector
-#   start.threshold <- round(quantile(st.res.vec)[2])
-#   if (is.na(start.threshold)) {
-#     start.threshold <- 60
-#   }
-#   
-#   } else {
-#   # These are ont reads
-#     end.threshold <- 35
-#     start.threshold <- 40
-# }
-# 
-# # Print out determined thresholds
-# cat("\nThis is the determined start.threshold: ", start.threshold)
-# cat("\nThis is the determined end.threshold: ", end.threshold, "\n")
+if (opt$platform == "pb") {
+
+ # Downsample number of reads
+ sample_size <- round((0.30 * (length(unique(df[df$s.name==unique(df$s.name)[1],]$r.name)))), digits = -1)
+ df_sr <- sample(unique(df[df$s.name==unique(df$s.name)[1],]$r.name), sample_size)
+ df_s <- data.frame()
+
+ function_g <- function(df, int, df_sr) {
+   df_s_tmp <- df[grep(df_sr[int], df$r.name), ]
+   return(df_s_tmp)
+ }
+
+ cat("\nStarting subsampling for all threshold processing.\n")
+ df_s <- foreach(s=1:length(df_sr), .combine = rbind) %dopar% {
+   df_s_tmp <- function_g(df[df$s.name==unique(df$s.name)[1],], s, df_sr)
+   df_s_tmp
+ }
+ cat("\nSubsampling completed.\n")
+
+ # Create data frame from 1000 downsampled reads to determine threshold to use
+ # going forward
+ # Create different test data frames for ont and pb bc ont data has messier
+ # telomeres and often does not meet the criteria at lower and higher end
+ # thresholds
+ start <- 1
+ end <- 100
+
+ # Initializing result data frame
+ th.result.df <- data.frame()
+
+ cat("\nProcessing all end thresholds for starting threshold of 50.\n")
+ e.result.df <- foreach(en=start:end, .combine=rbind) %dopar% {
+   tmp.result <- ddply_thresh(df_s, 50, en)
+   tmp.result
+ }
+
+ cat("\nProcessing all start thresholds for ending threshold of 50.\n")
+ s.result.df <- foreach(st=start:end, .combine=rbind) %dopar% {
+   tmp.result <- ddply_thresh(df_s, st, 50)
+   tmp.result
+ }
+
+ # Producing end threshold data frame to determine end threshold
+ et.df <- ddply(e.result.df[e.result.df$norm=="normalized", ],
+                .(s.name, e.thresh, s.thresh), summarize,
+                tel.ln.mean=mean(tel.length), .parallel = TRUE)
+
+ # Producing start threshold data frame to determine start threshold
+ st.df <- ddply(s.result.df[s.result.df$norm=="normalized", ],
+                .(s.name, s.thresh, e.thresh), summarize,
+                r.per.st=length(unique(r.name)), .parallel = TRUE)
+
+ # Determine asymptote of end threshold and max of start threshold
+ # subsets
+
+   et.res.vec <- vector()
+   for (et in start:end) {
+
+     if(et!=start){
+       p.et <- et -1
+       p.tl <- et.df$tel.ln.mean[et.df$e.thresh==p.et]
+       
+       t.tl <- et.df$tel.ln.mean[et.df$e.thresh==et]
+       
+       diff <- p.tl - t.tl
+       
+       per.diff <- abs(diff/median(et.df$tel.ln.mean))
+       
+       if( isTRUE(per.diff < 0.0001) ) {
+         et.res.vec <- c(et.res.vec, et)
+       }
+     }
+   }
+
+   # For loop for sts.df for ccs reads to determine vertical asymptote
+   st.res.vec <- vector()
+   for (st in start:end) {
+
+     if(st!=start){
+       p.st <- st - 1
+       pr.n <- st.df$r.per.st[st.df$s.thresh==p.st]
+       
+       t.rn <- st.df$r.per.st[st.df$s.thresh==st]
+       
+       diff <- pr.n - t.rn
+       
+       per.diff <- abs(diff/median(st.df$r.per.st))
+       
+       
+       if( isTRUE(per.diff < 0.002) ) {
+         st.res.vec <- c(st.res.vec, st)
+       }
+
+     }
+   }
+
+
+# Determine threshold values based on median values of result vector
+ end.threshold <- round(quantile(et.res.vec)[3])
+ if (is.na(end.threshold)) {
+   end.threshold <- 25
+ }
+
+   # Determine threshold values based on median values of result vector
+ start.threshold <- round(quantile(st.res.vec)[3])
+ if (is.na(start.threshold)) {
+   start.threshold <- 60
+ }
+
+ } else {
+
+   # These are ont reads
+   end.threshold <- 35
+   start.threshold <- 40
+ }
+
+# Print out determined thresholds
+cat("\nThis is the determined start.threshold: ", start.threshold)
+cat("\nThis is the determined end.threshold: ", end.threshold, "\n")
 
 # Determine telomere lengths based on thresholds
-#result.df <- ddply_thresh(df, start.threshold, end.threshold)
-result.df <- ddply_thresh(df, 40, 35)
+result.df <- ddply_thresh(df, start.threshold, end.threshold)
+#result.df <- ddply_thresh(df, 60, 50)
 
 
 # Updating basic stats

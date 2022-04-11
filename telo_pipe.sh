@@ -418,4 +418,5 @@ else
 fi
 
 echo -e "\nGraphing results at `date`\n"
-${bin_path}/mod4_graphing.R -r ${res_dir} -p ${pre} 
+${bin_path}/mod4_graphing.R -r ${res_dir} -p ${pre}
+${bin_path}/mod5_pyplot.py -i ${res_dir}/${pre}.end.bam.csv -o ${res_dir} -p ${pre}

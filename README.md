@@ -9,9 +9,9 @@
 * [References](#ref)
 
 ## <a name="info"></a>General Information
-This application is used to determine telomere length distributions, given two sequencing samples and compare the length distributions of those samples. The application requires two fastq files and a reference fasta file. Given these three files telomere length distributions can be determined, denovo telomere motifs are found and chromosomal telomere read counts. 
+This application is used to determine telomere length distributions, given two sequencing samples and compare the length distributions overall and by chromosome of those samples. The application requires two fastq files and a reference fasta file. Given these three files telomere length distributions can be determined, denovo telomere motifs are found, chromosomal telomere read counts and telomere length distributions. 
 
-There is a caveat in that the mean read length of the sequencing set must be longer than the predicted telomere length. For example, homosapien's telomeres are estimated to be ~5-15kb long; therefore, to accurately determine telomere length of homosapien's, the mean read length of the sequencing sets must be >15kb in length.
+There is a caveat in that the mean read length of the sequencing set must be longer than the predicted telomere length. For example, *Homo sapien's* telomeres are estimated to be ~5-15kb long; therefore, to accurately determine telomere length of *Homo sapien* sample, the mean read length of the sequencing sets must be >15kb in length.
 
 ## <a name="install"></a>Installation
 To run this application, install docker and download the docker image
@@ -40,7 +40,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 #### Download TLD docker image
 ```sh
-sudo docker pull jreed0pbsb/tld:latest
+sudo docker pull jreed0pbsb/tld:0.02
 ```
 
 #### Clone TLD
@@ -131,7 +131,7 @@ rm S288C_reference_genome_Current_Release.tgz
 
 #### Setup tld docker image and execute tld command
 ```sh
-sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:latest
+sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:0.02
 sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -d /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \

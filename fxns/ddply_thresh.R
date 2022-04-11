@@ -5,7 +5,7 @@ ddply_thresh <- function(df, s.thresh, e.thresh ) {
   
   # Source findtelomere function
   source('/tld/fxns/findTelLength.R')
-  
+
   # Find telomere length by read
   iter.label <- paste(c(s.thresh, "-", e.thresh), collapse = "")
 	iter.df <- ddply(df,.(s.name, r.name, r.type, read.median),

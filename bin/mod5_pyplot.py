@@ -5,7 +5,6 @@ import sys
 import argparse
 import pathlib
 from pathlib import Path
-
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -37,25 +36,18 @@ else:
     sys.exit("\n{input_csv} does not exist, exiting.".format(input_csv=args.input_csv))
 
 if Path(args.output_dir).is_dir():
-    print("\n{out_dir} is a valid directory, continuing.".format(out_dir=args.output_dir))
+    print("\n{out_dir} is a valid directory, continuing.\n".format(out_dir=args.output_dir))
 else:
-    sys.exit("\n{out_dir} is not a valid directory, exiting.".format(out_dir=args.output_dir))
+    sys.exit("\n{out_dir} is not a valid directory, exiting.\n".format(out_dir=args.output_dir))
 
 
 # Setting up some interactive options
-#plt.ioff()
-plt.ion()
-desired_width = 200
-pd.set_option('display.width', desired_width)
-pd.set_option('display.max_columns', 20)
-pd.set_option('display.max_rows', 50)
+plt.ioff()
 
 # Cleaning up data some
-#in_fn = args.input_csv
-#out_dir = str(args.output_dir)
+in_fn = args.input_csv
+out_dir = str(args.output_dir)
 
-in_fn = '~/tld/data/o_dir/pfalci.end.bam.csv'
-out_dir = '~/Desktop'
 data = pd.read_csv(in_fn)
 
 data.rename(columns={'s.name': 'Sample Name', 's.win': 'Sliding Window (bp)',
@@ -68,15 +60,11 @@ data_all = data_all.sort_values(by='Sample Name')
 
 # Process data into 5' End data only for plotting
 l_data = data_all[data_all['Chromosome End'].str.match('5')]
-chr_int = l_data['Chromosome'].apply(int)
-l_data = l_data.assign(Chromosome=chr_int.values)
-l_data.rename(columns={"Telomere Length (kb)": "5' End"}, inplace=True)
+l_data = l_data.rename(columns={"Telomere Length (kb)": "5' End"})
 
 # Process data into 3' End data only for plotting
 r_data = data_all[data_all['Chromosome End'].str.match('3')]
-chr_int = r_data['Chromosome'].apply(int)
-r_data = r_data.assign(Chromosome=chr_int.values)
-r_data.rename(columns={"Telomere Length (kb)": "3' End"}, inplace=True)
+r_data = r_data.rename(columns={"Telomere Length (kb)": "3' End"})
 
 # Set up plots
 sns.set(context='paper', style='darkgrid')
@@ -84,13 +72,13 @@ sns.set_palette('Set1', color_codes=True)
 
 # Increase fonts sizes for Figure 3 & Figure 4
 
-# plt.rc('font', size=20)
-# plt.rc('xtick', labelsize=20)
-# plt.rc('ytick', labelsize=20)
-# plt.rc('axes', labelsize=20)
-# plt.rc('axes', titlesize=20)
+plt.rc('font', size=20)
+plt.rc('xtick', labelsize=20)
+plt.rc('ytick', labelsize=20)
+plt.rc('axes', labelsize=20)
+plt.rc('axes', titlesize=20)
 
-fig_all, axes = plt.subplots(nrows=2, sharex='all', sharey='all', figsize=(14, 10))
+fig_all, axes = plt.subplots(nrows=2, sharex='all', sharey='all', figsize=(16, 12))
 
 # Plot combined data, individual chromosome data
 x = "Chromosome"
@@ -139,7 +127,7 @@ fig_all.suptitle("Telomere Length by Chromosome End", fontsize=42,
                  y=0.95, x=0.11, ha='left')
 fig_all.text(0.02, 0.5, 'Telomere Length (kb)', va='center',
              rotation='vertical', fontdict={'fontsize': 30})
-fig_all.text(0.45, 0.03, 'Chromosome',
+fig_all.text(0.40, 0.03, 'Chromosome',
              fontdict={'fontsize': 30})
 
 # Legends
@@ -150,8 +138,7 @@ irr_status = fig_all.legend(handles, labels,
 axes = plt.gca().add_artist(irr_status)
 
 # Layout
-# fig_all.tight_layout()
-# plt.subplots_adjust(left=0.11, bottom=0.12, right=0.865, top=0.88)
+plt.subplots_adjust(left=0.15, bottom=0.28, right=0.865, top=0.88)
 
 # Save Figure 2
 fil1_name = 'telo_length_by_chromosome'

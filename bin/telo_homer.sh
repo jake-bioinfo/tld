@@ -372,11 +372,16 @@ done < ${ref}.fai
 check_homer=$( ls ${out} | egrep "homerMotifs.all.motifs" );
 [ -f ${check_homer} ] && \
 { echo -e "\nHomer result file not found, run homer.";
-	mot2=$( echo "2*${mot}" | bc ); 
+	mot2=$( echo "3*${mot}" | bc ); 
 
 	# Run Homer on reference
+	#findMotifsGenome.pl ${out}/telo.bed ${ref} \
+	#${out} -len ${mot} -noweight -S ${mot2} \ 
+	# -e 0.000001 \
+	#-maxN 2 -preparse -p ${threads}
+
 	findMotifsGenome.pl ${out}/telo.bed ${ref} \
-	${out} -len ${mot} -noweight -S ${mot2} -e 0.000001 \
+	${out} -len ${mot} -noweight -S ${mot2} \
 	-maxN 2 -preparse -p ${threads}; } || \
 { echo -e "\nHomer result file found, proceeding."; }
 
@@ -387,7 +392,7 @@ check_motif=$( ls ${out} | egrep "temp.motifs" );
 [ -f ${check_motif} ] && \
 { echo -e "\nMotifs file not found, creating them."; 
 	egrep "^>" ${out}/homerMotifs.all.motifs | egrep "CC|GG" | sed "s:,:\t:g" \
-	| sed "s:>::g" | sort -k14 -r | cut -f1 | head -n 3 > ${out}/temp.motifs
+	| sed "s:>::g" | sort -k14 -r | cut -f1 | head -n 5 > ${out}/temp.motifs
 
 	# Create reverse and reverse complements of all motifs
 	touch ${out}/temp_rc.motifs

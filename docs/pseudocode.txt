@@ -1,0 +1,19 @@
+# 20231013 TLD Pseudocode
+
+1. telo_homer.sh
+	--> Cut reference genome to 1mil start chromosome and 1 mil end chromosome (subtelomeres)
+	--> In subtelomeres, look specifically at telomeres and find telomere motifs with Homer
+	--> Downsample so that each sample has the same amount of gigabases
+	--> Subset reads based on pattern matching of telomere motifs, convert to fasta
+	--> In a rolling window, count telomere motifs percent per window
+2. mod1_ln.R
+	--> Subsample telo reads and compute lengths at all threshholds, pick best threshhold
+	--> Calculate length based on start and end thresholds, start is for telomeric end, while end threshold is for internal portion of read
+3. mod2_trunc.R
+	--> For each read, remove telomere length of bases ==> this leaves only the subtelomeric portion of the read
+4. mod3_bam.R
+	--> Align truncated reads to reference, assign chromosome and endedness
+5. mod4_graphinc.R + mod5_pyplot.py
+	--> Plot the results of the analysis
+
+# Next step is to create a flowchart

@@ -132,12 +132,12 @@ sudo docker container rm sra
 ```sh
 wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz -O ./S288C_current_ref.tgz
 tar -xvf S288C_current_ref.tgz
-sudo mv S288C_* S288C_current_ref
+sudo mv S288C_ref* S288C_current_ref
 gzip -d S288C_current_ref/*.fsa.gz
 # if executed within cloned directory
-sudo mv S288C_current_ref/*.fsa.gz ./data/S288C_ref_genome.fasta
+sudo mv S288C_current_ref/*.fsa ./data/S288C_ref_genome.fasta
 # if cloned directory is in $HOME
-# sudo mv S288C_current_ref/*.fsa.gz ./data/S288C_ref_genome.fasta
+# sudo mv S288C_current_ref/*.fsa ./data/S288C_ref_genome.fasta
 rm -rf S288C_current_ref
 rm S288C_current_ref.tgz
 ```
@@ -148,13 +148,17 @@ rm S288C_current_ref.tgz
 # sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:0.02
 # if executed within cloned directory
 sudo docker run -id --name tld -v ./:/tld jreed0pbsb/tld:0.02
+# Print help
+sudo docker exec -it tld /tld/telo_pipe.sh -h
+# Set threads, default is nproc - 1
+threads=$(echo "$(nproc) - 1" | bc)
 sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -d /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \
 	-r /tld/data/S288C_ref_genome.fasta \
 	-p yeast \
 	-s "s288c,cen-pk" \
-	-m "1,1" -j 6 -l 100 -t 7
+	-m "1,1" -j 6 -l 100 -t ${threads}
 ```
 
 ## <a name="cite"></a>Citing TLD

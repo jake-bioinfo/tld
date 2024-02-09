@@ -110,22 +110,20 @@ sudo docker pull ncbi/sra-tools
 
 #### Setup docker image and download yeast strains
 ```sh
-sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
-sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna
-sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
-sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna
-sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
-sudo docker container stop sra
-sudo docker container rm sra
-```
-
-#### Setup docker image and download yeast strains, in cloned directory
-```sh
+# if executed within cloned directory
 sudo docker run -id --name sra -v ./data:/dna ncbi/sra-tools:latest
+# if cloned directory is in $HOME
+# sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
 sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna
+# if executed within cloned directory
 sudo mv ./data/SRR13577847.fastq ./data/s288c.fastq
+# if cloned directory is in $HOME
+# sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
 sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna
+# if executed within cloned directory
 sudo mv ./data/SRR13577846.fastq ./data/cen-pk.fastq
+# if cloned directory is in $HOME
+# sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
 sudo docker container stop sra
 sudo docker container rm sra
 ```
@@ -135,14 +133,20 @@ sudo docker container rm sra
 wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
 tar -xvf S288C_reference_genome_Current_Release.tgz
 gzip -d S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa.gz
+# if executed within cloned directory
 sudo mv S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
+# if cloned directory is in $HOME
+# sudo mv S288C_reference_genome_R64-3-1_20210421/S288C_reference_sequence_R64-3-1_20210421.fsa $HOME/tld/data/S288C_ref_genome.fasta
 rm -rf S288C_reference_genome_R64-3-1_20210421
 rm S288C_reference_genome_Current_Release.tgz
 ```
 
 #### Setup tld docker image and execute tld command
 ```sh
-sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:0.02
+# if cloned directory is in $HOME
+# sudo docker run -id --name tld -v $HOME/tld:/tld jreed0pbsb/tld:0.02
+# if executed within cloned directory
+sudo docker run -id --name tld -v ./:/tld jreed0pbsb/tld:0.02
 sudo docker exec -it tld /tld/telo_pipe.sh -w /tld/data/w_dir -d /tld/data/o_dir \
 	-a /tld/data/s288c.fastq \
 	-f /tld/data/cen-pk.fastq \

@@ -132,7 +132,7 @@ sudo docker container rm sra
 ```sh
 wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
 tar -xvf S288C_reference_genome_Current_Release.tgz
-gzip -d S288C_reference_sequence_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz
+gzip -d S288C_reference_genome_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz
 # if executed within cloned directory
 sudo mv S288C_reference_sequence_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz ./data/S288C_ref_genome.fasta
 # if cloned directory is in $HOME

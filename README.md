@@ -130,15 +130,16 @@ sudo docker container rm sra
 
 #### Get and unpack reference genome
 ```sh
-wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz
-tar -xvf S288C_reference_genome_Current_Release.tgz
-gzip -d S288C_reference_genome_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz
+wget http://sgd-archive.yeastgenome.org/sequence/S288C_reference/genome_releases/S288C_reference_genome_Current_Release.tgz -O ./S288C_current_ref.tgz
+tar -xvf S288C_current_ref.tgz
+sudo mv S288C_* S288C_current_ref
+gzip -d S288C_current_ref/*.fsa.gz
 # if executed within cloned directory
-sudo mv S288C_reference_sequence_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz ./data/S288C_ref_genome.fasta
+sudo mv S288C_current_ref/*.fsa.gz ./data/S288C_ref_genome.fasta
 # if cloned directory is in $HOME
-# sudo mv S288C_reference_sequence_R64-4-1_20230830/S288C_reference_sequence_R64-4-1_20230830.fsa.gz $HOME/tld/data/S288C_ref_genome.fasta
-rm -rf S288C_reference_sequence_R64-4-1_20230830
-rm S288C_reference_genome_Current_Release.tgz
+# sudo mv S288C_current_ref/*.fsa.gz ./data/S288C_ref_genome.fasta
+rm -rf S288C_current_ref
+rm S288C_current_ref.tgz
 ```
 
 #### Setup tld docker image and execute tld command

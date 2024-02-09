@@ -111,9 +111,9 @@ sudo docker pull ncbi/sra-tools
 #### Setup docker image and download yeast strains
 ```sh
 sudo docker run -id --name sra -v $HOME/tld/data:/dna ncbi/sra-tools:latest
-sudo docker exec -it sra fasterq-dump -v SRR13577847 -O /dna -t /dna
+sudo docker exec -it sra fastq-dump -v SRR13577847 -O /dna -t /dna
 sudo mv $HOME/tld/data/SRR13577847.fastq $HOME/tld/data/s288c.fastq
-sudo docker exec -it sra fasterq-dump -v SRR13577846 -O /dna -t /dna
+sudo docker exec -it sra fastq-dump -v SRR13577846 -O /dna -t /dna
 sudo mv $HOME/tld/data/SRR13577846.fastq $HOME/tld/data/cen-pk.fastq
 sudo docker container stop sra
 sudo docker container rm sra
